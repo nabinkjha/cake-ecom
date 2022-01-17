@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model ProductType {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[] @relation("ProductHasType")
+  isActive Boolean   @default(true)
+}
+
+model ProductCategory {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[] @relation("ProductHasCategory")
+  isActive Boolean   @default(true)
+}
+
+model Product {
+  id                Int              @id @default(autoincrement())
+  name              String
+  slug              String
+  description       String
+  imageUrl          String
+  isFeatured        Boolean
+  featuredImage     String
+  price             Float
+  brand             String
+  rating            Float
+  numReviews        Int
+  countInStock      Int
+  productType       ProductType?     @relation("ProductHasType", fields: [productTypeId], references: [id])
+  productTypeId     Int?             @default(1)
+  productCategory   ProductCategory? @relation("ProductHasCategory", fields: [productCategoryId], references: [id])
+  productCategoryId Int?             @default(1)
+  reviews           Review[]         @relation("ProductReview")
+  orderItems        OrderItem[]
+}
+
+model Profile {
+  id     Int     @id @default(autoincrement())
+  name   String
+  user   User    @relation("UserHasProfile", fields: [userId], references: [id])
+  userId Int     @unique
+  avatar String?
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String?
+  email String  @unique
+
+  password String
+  isAdmin  Boolean? @default(false)
+
+  orders          Order[]           @relation("UserOrders")
+  shippingAddress ShippingAddress[] @relation("UserShippingAddress")
+  // User can have at most one profile
+  profile         Profile?          @relation("UserHasProfile")
+  //User can have multiple friends
+  friends         User[]            @relation("UserFriendsUse", references: [id])
+  // User can be friend of multiple users
+  friendOf        User[]            @relation("UserFriendsUse", references: [id])
+  //User can create multiple reviews
+  reviews         Review[]          @relation("UserProductReview")
+  //User can like multiple reviews
+  likedReviews    Review[]          @relation("UserLikesReview")
+  //User can add multiple review comments
+  reviewComments  ReviewComment[]   @relation("UserAuthorsReviewComment")
+  //User can like multiple review comments
+  likedComments   ReviewComment[]   @relation("UserLikesReviewComment")
+}
+
+model Review {
+  id         Int             @id @default(autoincrement())
+  content    String
+  rating     Int
+  //Review must be for a product
+  product    Product         @relation("ProductReview", fields: [productId], references: [id])
+  productId  Int
+  //Review must be done by User
+  reviewer   User            @relation("UserProductReview", fields: [reviewerId], references: [id])
+  reviewerId Int
+  //Review can be liked by multiple Users
+  likedBy    User[]          @relation("UserLikesReview")
+  //Review can be have multiple comments
+  comments   ReviewComment[] @relation("ReviewHasComment")
+}
+
+model ReviewComment {
+  id              Int             @id @default(autoincrement())
+  content         String
+  createdAt       DateTime        @default(now())
+  //Review comment must belong to existing  review.
+  review          Review          @relation("ReviewHasComment", fields: [reviewId], references: [id])
+  reviewId        Int
+  //Review comment must be written by an existing user.
+  author          User            @relation("UserAuthorsReviewComment", fields: [authorId], references: [id])
+  authorId        Int
+  // A comment can be parent/child of another comment
+  parentComment   ReviewComment?  @relation("CommentParentsComment", fields: [parentCommentId], references: [id])
+  parentCommentId Int?
+  childComments   ReviewComment[] @relation("CommentParentsComment")
+  //comment can be liked by multiple users
+  likedByUsers    User[]          @relation("UserLikesReviewComment")
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  paymentMethod     String?
+  paymentResult     String?         @default("unpaid")
+  itemsPrice        Int
+  shippingPrice     Int
+  taxPrice          Decimal
+  totalPrice        Decimal
+  isPaid            Boolean?        @default(false)
+  isDelivered       Boolean?        @default(false)
+  paidAt            DateTime?
+  deliveredAt       DateTime?
+  orderItems        OrderItem[]     @relation()
+  user              User            @relation("UserOrders", fields: [userId], references: [id])
+  userId            Int
+  shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id])
+  shippingAddressId Int
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model ShippingAddress {
+  id         Int       @id @default(autoincrement())
+  fullName   String?
+  address    String?
+  city       String?
+  postalCode String?
+  country    String?
+  location   Location? @relation(fields: [locationId], references: [id])
+  locationId Int?
+  order      Order[]   @relation()
+  userId     Int?
+  user       User[]    @relation("UserShippingAddress")
+}
+
+model Location {
+  id              Int     @id @default(autoincrement())
+  lat             String?
+  lng             String?
+  address         String?
+  name            String?
+  vicinity        String?
+  googleAddressId String?
+
+  ShippingAddress ShippingAddress[]
+}
