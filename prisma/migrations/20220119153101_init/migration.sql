@@ -161,6 +161,9 @@ CREATE TABLE "_UserLikesReviewComment" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Product_slug_key" ON "Product"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex
