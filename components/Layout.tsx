@@ -36,6 +36,7 @@ export default function Layout({
   description: string;
   children: JSX.Element;
 }) {
+  const [darkMode, setDarkMode] = useState(false);
   const theme = createTheme({
     typography: {
       h1: {
@@ -50,7 +51,7 @@ export default function Layout({
       },
     },
     palette: {
-      //mode: darkMode ? 'dark' : 'light',
+      mode: darkMode ? 'dark' : 'light',
       primary: {
         main: "#f0c000",
       },
@@ -62,6 +63,7 @@ export default function Layout({
   const classes = useStyles();
 
   const [sidbarVisible, setSidebarVisible] = useState(false);
+  
   const sidebarOpenHandler = () => {
     setSidebarVisible(true);
   };
@@ -70,7 +72,7 @@ export default function Layout({
   };
 
   const darkModeChangeHandler = () => {
-//TODO:
+    setDarkMode(!darkMode);
   };
  
   const pagetitle = "Jha's Home Bakery";
@@ -125,7 +127,7 @@ export default function Layout({
 
             <div>
               <Switch
-                checked={true}
+                checked={darkMode}
                 onChange={darkModeChangeHandler}
               ></Switch>
               <NextLink href="/cart" passHref>
