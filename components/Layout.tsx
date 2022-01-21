@@ -1,5 +1,6 @@
-import React, { useContext } from 'react';
-import Head from "next/head";
+import React from 'react';
+
+import { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -19,13 +20,14 @@ import {
   Switch,
 } from "@mui/material";
 import Copyright from "./Copyright";
+import ThemeReducer from "./ThemeReducer";
 import useStyles from "../utils/style";
 import NextLink from "next/link";
 import { Box } from '@mui/system';
 import MenuIcon from '@mui/icons-material/Menu';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { useState } from 'react';
 
+import Head from 'next/head';
 
 export default function Layout({
   title,
@@ -36,7 +38,7 @@ export default function Layout({
   description: string;
   children: JSX.Element;
 }) {
-  const [darkMode, setDarkMode] = useState(false);
+  const[darkMode, setDarkMode]=useState<boolean>(false);
   const theme = createTheme({
     typography: {
       h1: {
@@ -51,7 +53,7 @@ export default function Layout({
       },
     },
     palette: {
-      mode: darkMode ? 'dark' : 'light',
+      mode:  darkMode ? 'dark' : 'light', 
       primary: {
         main: "#f0c000",
       },
@@ -62,7 +64,7 @@ export default function Layout({
   });
   const classes = useStyles();
 
-  const [sidbarVisible, setSidebarVisible] = useState(false);
+  const [sidbarVisible, setSidebarVisible] = useState<boolean|null>(false);
   
   const sidebarOpenHandler = () => {
     setSidebarVisible(true);
@@ -71,10 +73,6 @@ export default function Layout({
     setSidebarVisible(false);
   };
 
-  const darkModeChangeHandler = () => {
-    setDarkMode(!darkMode);
-  };
- 
   const pagetitle = "Jha's Home Bakery";
   return (
     <div>
@@ -126,10 +124,7 @@ export default function Layout({
             </Drawer>
 
             <div>
-              <Switch
-                checked={darkMode}
-                onChange={darkModeChangeHandler}
-              ></Switch>
+              <ThemeReducer onChange={(value:boolean)=> setDarkMode(value)}/>
               <NextLink href="/cart" passHref>
                 <Link>
                   <Typography component="span">

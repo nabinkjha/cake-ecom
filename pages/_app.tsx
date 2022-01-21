@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import { useEffect } from 'react';
 import '../styles/globals.css';
+import { CartProvider } from '../components/cart/context/cartContext';
 //import { StoreProvider } from '../utils/Store';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -12,10 +13,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, []);
   return (
-    <Component {...pageProps} />
-    // <StoreProvider>
-    //   <Component {...pageProps} />
-    // </StoreProvider>
+    <CartProvider>
+      <Component {...pageProps} />
+    </CartProvider>
   );
 }
 
