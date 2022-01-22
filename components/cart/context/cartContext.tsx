@@ -9,6 +9,7 @@ import {
 import { cartReducer } from "./reducers/cartReducer";
 import type { Action, cart, State } from "./types";
 import Cookies from "js-cookie";
+import { User } from "@prisma/client";
 
 type Dispatch = (action: Action) => void;
 type CartProviderProps = { readonly children: React.ReactNode };
@@ -26,17 +27,23 @@ const paymentMethod = Cookies.get("paymentMethod")
   ? Cookies.get("paymentMethod")
   : "";
 const userInfo = Cookies.get("userInfo")
-  ? JSON.parse(Cookies.get("userInfo"))
+  ? JSON.parse(Cookies.get("userInfo")) as User
   : null;
-const cartcookie: cart = {
+ const darkMode = Cookies.get("darkMode")
+  ? JSON.parse(Cookies.get("darkMode")) as string
+  : null;
+  const cartcookie: cart = {
   cartItems: cartItems,
   shippingAddress: shippingAddress,
   paymentMethod: paymentMethod,
 };
+
+
 const initialState: State = {
   cart: cartcookie,
   userInfo: userInfo,
   totalPrice: 0,
+  darkMode:darkMode
 };
 
 export function CartProvider({ children }: CartProviderProps) {

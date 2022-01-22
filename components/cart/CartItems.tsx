@@ -15,7 +15,7 @@ import {
   Card,
   List,
   ListItem,
-} from "@material-ui/core";
+} from "@mui/material";
 import { useRouter } from "next/router";
 import Layout from "../Layout";
 import { ItemInBasket } from "./context/types";

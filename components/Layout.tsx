@@ -18,6 +18,10 @@ import {
   Drawer,
   InputBase,
   Switch,
+  Menu,
+  Button,
+  MenuItem,
+  Badge,
 } from "@mui/material";
 import Copyright from "./Copyright";
 import ThemeReducer from "./ThemeReducer";
@@ -28,6 +32,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CancelIcon from '@mui/icons-material/Cancel';
 
 import Head from 'next/head';
+import { useCart } from './cart/hooks/useCart';
+import Cookies from "js-cookie";
+import { useRouter } from 'next/router';
 
 export default function Layout({
   title,
@@ -38,7 +45,13 @@ export default function Layout({
   description: string;
   children: JSX.Element;
 }) {
-  const[darkMode, setDarkMode]=useState<boolean>(false);
+  const classes = useStyles();
+  const router = useRouter();
+  const { state, dispatch } = useCart();
+  const { cart, userInfo ,darkMode} = state;
+  const [sidbarVisible, setSidebarVisible] = useState<boolean|null>(false);
+  const [darkModeStatus, setDarkModeStatus] = useState<boolean|null>(darkMode === 'ON');
+
   const theme = createTheme({
     typography: {
       h1: {
@@ -53,7 +66,7 @@ export default function Layout({
       },
     },
     palette: {
-      mode:  darkMode ? 'dark' : 'light', 
+      mode:  darkMode  === 'ON' ? 'dark' : 'light', 
       primary: {
         main: "#f0c000",
       },
@@ -62,9 +75,7 @@ export default function Layout({
       },
     },
   });
-  const classes = useStyles();
 
-  const [sidbarVisible, setSidebarVisible] = useState<boolean|null>(false);
   
   const sidebarOpenHandler = () => {
     setSidebarVisible(true);
@@ -72,79 +83,189 @@ export default function Layout({
   const sidebarCloseHandler = () => {
     setSidebarVisible(false);
   };
+  const darkModeChangeHandler = () => {
+    const dispatchType= darkMode === "ON" ? 'DARK_MODE_OFF' : 'DARK_MODE_ON';
+    setDarkModeStatus(!darkModeStatus);
+    dispatch({ type: dispatchType, payload: null });
+
+  };
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const loginClickHandler = (e) => {
+    setAnchorEl(e.currentTarget);
+  };
+  const loginMenuCloseHandler = (e, redirect:string) => {
+    setAnchorEl(null);
+    if (redirect) {
+      router.push(redirect);
+    }
+  };
+  const logoutClickHandler = () => {
+    setAnchorEl(null);
+    dispatch({ type: 'USER_LOGOUT',payload:null });
+    router.push('/');
+  };
 
   const pagetitle = "Jha's Home Bakery";
   return (
     <div>
-      <Head>
-        <title>{title ? `${title} - ${pagetitle}` : pagetitle}</title>
-        {description && <meta name="description" content={description}></meta>}
-      </Head>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppBar position="static" className={classes.navbar}>
-          <Toolbar className={classes.toolbar}>
-            <Box display="flex" alignItems="center">
-              <IconButton
-                edge="start"
-                aria-label="open drawer"
-                onClick={sidebarOpenHandler}
-                className={classes.menuButton}
-              >
-                <MenuIcon className={classes.navbarButton} />
-              </IconButton>
-              <NextLink href="/" passHref>
-                <Link>
-                  <Typography className={classes.brand}>{pagetitle}</Typography>
-                </Link>
-              </NextLink>
-            </Box>
-            <Drawer
-              anchor="left"
-              open={sidbarVisible}
-              onClose={sidebarCloseHandler}
+    <Head>
+      <title>{title ? title+ pagetitle :pagetitle}</title>
+      {description && <meta name="description" content={description}></meta>}
+    </Head>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppBar position="static" className={classes.navbar}>
+        <Toolbar className={classes.toolbar}>
+          <Box display="flex" alignItems="center">
+            <IconButton
+              edge="start"
+              aria-label="open drawer"
+              onClick={sidebarOpenHandler}
+              className={classes.menuButton}
             >
-              <List>
-                <ListItem>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
+              <MenuIcon className={classes.navbarButton} />
+            </IconButton>
+            <NextLink href="/" passHref>
+              <Link>
+                <Typography className={classes.brand}>Jha's Home Bakery</Typography>
+              </Link>
+            </NextLink>
+          </Box>
+          <Drawer
+            anchor="left"
+            open={sidbarVisible}
+            onClose={sidebarCloseHandler}
+          >
+            <List>
+              <ListItem>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <Typography>Shopping by category</Typography>
+                  <IconButton
+                    aria-label="close"
+                    onClick={sidebarCloseHandler}
                   >
-                    <Typography>Shopping by category</Typography>
-                    <IconButton
-                      aria-label="close"
-                      onClick={sidebarCloseHandler}
-                    >
-                      <CancelIcon />
-                    </IconButton>
-                  </Box>
-                </ListItem>
-              </List>
-            </Drawer>
+                    <CancelIcon />
+                  </IconButton>
+                </Box>
+              </ListItem>
+              <Divider light />
+              {/* {categories.map((category) => (
+                <NextLink
+                  key={category}
+                  href={`/search?category=${category}`}
+                  passHref
+                >
+                  <ListItem
+                    button
+                    component="a"
+                    onClick={sidebarCloseHandler}
+                  >
+                    <ListItemText primary={category}></ListItemText>
+                  </ListItem>
+                </NextLink>
+              ))} */}
+            </List>
+          </Drawer>
 
-            <div>
-              <ThemeReducer onChange={(value:boolean)=> setDarkMode(value)}/>
-              <NextLink href="/cart" passHref>
+          <div className={classes.searchSection}>
+            {/* <form onSubmit={submitHandler} className={classes.searchForm}>
+              <InputBase
+                name="query"
+                className={classes.searchInput}
+                placeholder="Search products"
+                onChange={queryChangeHandler}
+              />
+              <IconButton
+                type="submit"
+                className={classes.iconButton}
+                aria-label="search"
+              >
+                <SearchIcon />
+              </IconButton>
+            </form> */}
+          </div>
+          <div>
+            <Switch
+              checked={darkModeStatus}
+              onChange={darkModeChangeHandler}
+            ></Switch>
+            <NextLink href="/cart" passHref>
+              <Link>
+                <Typography component="span">
+                  {cart.cartItems.length > 0 ? (
+                    <Badge
+                      color="secondary"
+                      badgeContent={cart.cartItems.length}
+                    >
+                      Cart
+                    </Badge>
+                  ) : (
+                    'Cart'
+                  )}
+                </Typography>
+              </Link>
+            </NextLink>
+            {userInfo ? (
+              <>
+                <Button
+                  aria-controls="simple-menu"
+                  aria-haspopup="true"
+                  onClick={loginClickHandler}
+                  className={classes.navbarButton}
+                >
+                  {userInfo.name}
+                </Button>
+                <Menu
+                  id="simple-menu"
+                  anchorEl={anchorEl}
+                  keepMounted
+                  open={Boolean(anchorEl)}
+                  onClose={loginMenuCloseHandler}
+                >
+                  <MenuItem
+                    onClick={(e) => loginMenuCloseHandler(e, '/profile')}
+                  >
+                    Profile
+                  </MenuItem>
+                  <MenuItem
+                    onClick={(e) =>
+                      loginMenuCloseHandler(e, '/order-history')
+                    }
+                  >
+                    Order Hisotry
+                  </MenuItem>
+                  {userInfo.isAdmin && (
+                    <MenuItem
+                      onClick={(e) =>
+                        loginMenuCloseHandler(e, '/admin/dashboard')
+                      }
+                    >
+                      Admin Dashboard
+                    </MenuItem>
+                  )}
+                  <MenuItem onClick={logoutClickHandler}>Logout</MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <NextLink href="/login" passHref>
                 <Link>
-                  <Typography component="span">
-                  Cart
-                  </Typography>
+                  <Typography component="span">Login</Typography>
                 </Link>
               </NextLink>
-              <NextLink href="/login" passHref>
-                  <Link>
-                    <Typography component="span">Login</Typography>
-                  </Link>
-                </NextLink>
-            </div>
-          </Toolbar>
-        </AppBar>
-        <Container className={classes.main}>{children}</Container>
-        <footer className={classes.footer}>
-          <Copyright />
-        </footer>
-      </ThemeProvider>
-    </div>
+            )}
+          </div>
+        </Toolbar>
+      </AppBar>
+      <Container className={classes.main}>{children}</Container>
+      <footer className={classes.footer}>
+        <Typography>All rights reserved. Next Amazona.</Typography>
+      </footer>
+    </ThemeProvider>
+  </div>
   );
 }

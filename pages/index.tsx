@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import NextLink from "next/link";
 import { GetServerSideProps } from "next";
 import { PrismaClient } from "@prisma/client";
-import axios from 'axios';
+import axios from "axios";
 import {
   Grid,
   Card,
@@ -14,13 +14,12 @@ import {
   Button,
 } from "@mui/material";
 import Layout from "../components/Layout";
-import { ItemInBasket } from "../components/cart/context/reducers/types";
 import { Rating } from "@material-ui/lab";
 import { useRouter } from "next/router";
 import { useCart } from "../components/cart/hooks/useCart";
+import { ItemInBasket } from "../components/cart/context/types";
 
 const Home: NextPage = ({ data }: { data: SearchProps }) => {
-
   const router = useRouter();
   const { state, dispatch } = useCart();
   const addToCartHandler = async (product: ItemInBasket) => {
@@ -37,45 +36,43 @@ const Home: NextPage = ({ data }: { data: SearchProps }) => {
   };
 
   return (
-    <div id="divNabin">
-      <Layout title="">
-        <h1>Cakes</h1>
-        <Grid container spacing={3}>
-          {data.items.map((product) => (
-            <Grid item md={4} key={product.name}>
-              {/* <ProductItem key={product.id} {...product} /> */}
+    <Layout title="">
+      <h1>Cakes</h1>
+      <Grid container spacing={3}>
+        {data.items.map((product) => (
+          <Grid item md={4} key={product.name}>
+            {/* <ProductItem key={product.id} {...product} /> */}
 
-              <Card>
-                <NextLink href={`/product/${product.slug}`} passHref>
-                  <CardActionArea>
-                    <CardMedia
-                      component="img"
-                      height="300"
-                      image={product.imageUrl}
-                      title={product.name}
-                    ></CardMedia>
-                    <CardContent>
-                      <Typography>{product.name}</Typography>
-                      <Rating value={product.rating} readOnly></Rating>
-                    </CardContent>
-                  </CardActionArea>
-                </NextLink>
-                <CardActions>
-                  <Typography>Rs.{product.price}</Typography>
-                  <Button
-                    size="small"
-                    color="primary"
-                    onClick={() => addToCartHandler(product)}
-                  >
-                    Add to cart
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Layout>
-    </div>
+            <Card>
+              <NextLink href={`/product/${product.slug}`} passHref>
+                <CardActionArea>
+                  <CardMedia
+                    component="img"
+                    height="300"
+                    image={product.imageUrl}
+                    title={product.name}
+                  ></CardMedia>
+                  <CardContent>
+                    <Typography>{product.name}</Typography>
+                    <Rating value={product.rating} readOnly></Rating>
+                  </CardContent>
+                </CardActionArea>
+              </NextLink>
+              <CardActions>
+                <Typography>Rs.{product.price}</Typography>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={() => addToCartHandler(product)}
+                >
+                  Add to cart
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Layout>
   );
 };
 
