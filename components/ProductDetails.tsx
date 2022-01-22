@@ -24,8 +24,7 @@ export const ProductDetails = (itemInBasket: ItemInBasket) => {
   const classes = useStyles();
   const router = useRouter();
   const addToCart = () => {
-    dispatch({ type: 'addProduct', payload: itemInBasket });
-    dispatch({ type: 'openMenu' });
+    dispatch({ type: 'ADD_CART_ITEM', payload: itemInBasket });
     router.push('/cart');
   };
 

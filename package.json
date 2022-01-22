@@ -21,8 +21,11 @@
     "axios": "^0.25.0",
     "js-cookie": "^3.0.1",
     "next": "12.0.8",
+    "next-connect": "^0.11.0",
+    "notistack": "^2.0.3",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "react-hook-form": "^7.25.0",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2",
     "ts-node": "^10.4.0"

@@ -34,10 +34,7 @@ export const getServerSideProps: GetServerSideProps<SearchProps> = async (
         reviews:true
     }
   });
-  const itemInBasket={...product};
-  itemInBasket.category= product?.productCategory?.name,
-  itemInBasket.quantity = 1;
-  delete itemInBasket.productCategory;
+  const itemInBasket={...product,quantity : 1,category: product?.productCategory?.name};
   return {
     props: {
       itemInBasket: itemInBasket,

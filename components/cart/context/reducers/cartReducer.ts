@@ -1,4 +1,3 @@
-import type Prisma from "@prisma/client";
 import type { Action, ItemInBasket, State } from "../types";
 import Cookies from 'js-cookie';
 
@@ -8,40 +7,46 @@ const calculateTotalPrice = (cartitems: Array<ItemInBasket>) => {
 
 export const cartReducer = (state: State, action: Action) => {
   switch (action.type) {
-    case "addProduct": {
-      const cartitems = [...state.cartitems];
+    case "ADD_CART_ITEM": {
       const newItem = action.payload;
-      const isAlredyExist = cartitems.find(
-        (cartitem) => cartitem.id === newItem.id
+      const existItem = state.cart.cartItems.find(
+        (item) => item.id === newItem.id
       );
-      const newCartItems = [newItem, ...cartitems];
-      const totalPrice = calculateTotalPrice(newCartItems);
-      if (!isAlredyExist) {
-        console.log("Total Price",totalPrice);
-        return {
-          ...state,
-          cartitems: newCartItems,
-          totalPrice,
-        };
-      }
-      return state;
+      const cartItems = existItem
+        ? state.cart.cartItems.map((item) =>
+            item.name === existItem.name ? newItem : item
+          )
+        : [...state.cart.cartItems, newItem];
+      const totalPrice = calculateTotalPrice(cartItems);
+      Cookies.set('cartItems', JSON.stringify(cartItems));
+      return { ...state,totalPrice:totalPrice, cart: { ...state.cart, cartItems } };
     }
-    case "deleteProduct": {
-      const cartitems = [...state.cartitems];
-      const itemToDelete = action.payload;
-      const selectedItems = cartitems.filter(
-        (product) => product.id !== itemToDelete.id
+    case "REMOVE_CART_ITEM": {
+      const cartItems = state.cart.cartItems.filter(
+        (item) => item.id !== action.payload.id
       );
-
-      const totalPrice = calculateTotalPrice(selectedItems);
-
+      const totalPrice = calculateTotalPrice(cartItems);
+      Cookies.set('cartItems', JSON.stringify(cartItems));
+      return { ...state,totalPrice:totalPrice,  cart: { ...state.cart, cartItems } };
+    }
+    case 'SAVE_SHIPPING_ADDRESS':
+      Cookies.set('shippingAddress', JSON.stringify(action.payload));
       return {
         ...state,
-        cartitems: [...selectedItems],
-        totalPrice,
+        cart: {
+          ...state.cart,
+          shippingAddress: {
+            ...state.cart.shippingAddress,
+            ...action.payload,
+          },
+        },
       };
-    }
-
+      case 'SAVE_PAYMENT_METHOD':
+        Cookies.set('paymentMethod', JSON.stringify(action.payload));
+        return {
+          ...state,
+          cart: { ...state.cart, paymentMethod: action.payload },
+        };
     default: {
       return state;
     }

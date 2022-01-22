@@ -24,7 +24,7 @@ const Home: NextPage = ({ data }: { data: SearchProps }) => {
   const router = useRouter();
   const { state, dispatch } = useCart();
   const addToCartHandler = async (product: ItemInBasket) => {
-    const existItem = state.cartitems.find((x) => x.id === product.id);
+    const existItem = state.cart.cartItems.find((x) => x.id === product.id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product.id}`);
 
@@ -32,7 +32,7 @@ const Home: NextPage = ({ data }: { data: SearchProps }) => {
       window.alert("Sorry. Product is out of stock");
       return;
     }
-    dispatch({ type: "addProduct", payload: { ...product, quantity } });
+    dispatch({ type: "ADD_CART_ITEM", payload: { ...product, quantity } });
     router.push("/cart");
   };
 

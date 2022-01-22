@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import NextLink from "next/link";
 import Image from "next/image";
+import dynamic from 'next/dynamic';
 import {
   Grid,
   TableContainer,
@@ -22,29 +23,30 @@ import { useCart } from "../components/cart/hooks/useCart";
 import { MenuItem, Select } from "@mui/material";
 import Layout from "../components/Layout";
 import { NextPage } from "next";
-import axios from 'axios'
+import axios from "axios";
 type CartItemsProps = {
   readonly cartitems: Array<ItemInBasket>;
 };
 
-export default function CartScreen(props) {
+const CartPage = () => {
   const { state, dispatch } = useCart();
   const router = useRouter();
-  const { cartitems ,totalPrice} = state;
+  const { cart, totalPrice } = state;
+  const { cartItems } = cart;
   const handleDelete = (product: ItemInBasket) => {
-    dispatch({ type: "deleteProduct", payload: product });
+    dispatch({ type: "REMOVE_CART_ITEM", payload: product });
   };
   const checkoutHandler = () => {
-        router.push("/shipping");
-      };
+    router.push("/shipping");
+  };
 
   const updateCartHandler = async (item: ItemInBasket, quantity: number) => {
-    // const { data } = await axios.get(`/api/products/${item.id}`);
-    // if (data.countInStock < quantity) {
-    //   window.alert("Sorry. Product is out of stock");
-    //   return;
-    // }
-    // dispatch({ type: "addProduct", payload: { ...item, quantity } });
+    const { data } = await axios.get(`/api/products/${item.id}`);
+    if (data.countInStock < quantity) {
+      window.alert("Sorry. Product is out of stock");
+      return;
+    }
+    dispatch({ type: "ADD_CART_ITEM", payload: { ...item, quantity } });
   };
 
   return (
@@ -53,7 +55,7 @@ export default function CartScreen(props) {
       <Typography component="h3" variant="h3">
         Shopping Cart
       </Typography>
-      {cartitems.length === 0 ? (
+      {cartItems.length === 0 ? (
         <div>
           Cart is empty.{" "}
           <NextLink href="/" passHref>
@@ -75,7 +77,7 @@ export default function CartScreen(props) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {cartitems.map((product) => (
+                  {cartItems.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell>
                         <NextLink href={`/product/${product.slug}`} passHref>
@@ -132,9 +134,8 @@ export default function CartScreen(props) {
               <List>
                 <ListItem>
                   <Typography variant="h5">
-                    Subtotal ({cartitems.reduce((a, c) => a + c.quantity, 0)}{" "}
-                    items) : 
-                    ₹{totalPrice}
+                    Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}{" "}
+                    items) : ₹{totalPrice}
                   </Typography>
                 </ListItem>
                 <ListItem>
@@ -154,4 +155,6 @@ export default function CartScreen(props) {
       )}
     </Layout>
   );
-}
+};
+export default dynamic(() => Promise.resolve(CartPage), { ssr: false });
+//export default CartPage;
