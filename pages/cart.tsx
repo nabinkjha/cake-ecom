@@ -16,11 +16,12 @@ import {
   Card,
   List,
   ListItem,
-} from "@material-ui/core";
+  MenuItem,
+   Select
+} from "@mui/material";
 import { useRouter } from "next/router";
 import { ItemInBasket } from "../components/cart/context/types";
 import { useCart } from "../components/cart/hooks/useCart";
-import { MenuItem, Select } from "@mui/material";
 import Layout from "../components/Layout";
 import { NextPage } from "next";
 import axios from "axios";
@@ -52,7 +53,7 @@ const CartPage = () => {
   return (
     // <CartItems cartitems={cartitems} />
     <Layout title="Shopping Cart">
-      <Typography component="h3" variant="h3">
+      <Typography component="h4" variant="h4">
         Shopping Cart
       </Typography>
       {cartItems.length === 0 ? (

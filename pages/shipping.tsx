@@ -28,9 +28,9 @@ const ShippingPage = () => {
     const { location } = shippingAddress;
 
     useEffect(() => {
-    //   if (!userInfo) {
-    //     router.push('/login?redirect=/shipping');
-    //   }
+      if (!userInfo) {
+        router.push('/login?redirect=/shipping');
+      }
       setValue('fullName', shippingAddress.fullName);
       setValue('address', shippingAddress.address);
       setValue('city', shippingAddress.city);
@@ -71,7 +71,7 @@ const ShippingPage = () => {
       <Layout title="Shipping Address">
         <CheckoutWizard activeStep={1} />
         <form onSubmit={handleSubmit(submitHandler)} className={classes.form}>
-          <Typography component="h1" variant="h1">
+          <Typography component="h5" variant="h5">
             Shipping Address
           </Typography>
           <List>

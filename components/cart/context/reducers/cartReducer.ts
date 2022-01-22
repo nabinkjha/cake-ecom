@@ -1,8 +1,8 @@
 import type { Action, ItemInBasket, State } from "../types";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 const calculateTotalPrice = (cartitems: Array<ItemInBasket>) => {
-  return cartitems.reduce((acc, curr) => acc + curr.price, 0);
+  return cartitems.reduce((acc, curr) => acc + (curr.price*curr.quantity), 0);
 };
 
 export const cartReducer = (state: State, action: Action) => {
@@ -18,19 +18,29 @@ export const cartReducer = (state: State, action: Action) => {
           )
         : [...state.cart.cartItems, newItem];
       const totalPrice = calculateTotalPrice(cartItems);
-      Cookies.set('cartItems', JSON.stringify(cartItems));
-      return { ...state,totalPrice:totalPrice, cart: { ...state.cart, cartItems } };
+      console.log("Total Price",totalPrice)
+      console.log("Total Price",cartItems)
+      Cookies.set("cartItems", JSON.stringify(cartItems));
+      return {
+        ...state,
+        totalPrice: totalPrice,
+        cart: { ...state.cart, cartItems },
+      };
     }
     case "REMOVE_CART_ITEM": {
       const cartItems = state.cart.cartItems.filter(
         (item) => item.id !== action.payload.id
       );
       const totalPrice = calculateTotalPrice(cartItems);
-      Cookies.set('cartItems', JSON.stringify(cartItems));
-      return { ...state,totalPrice:totalPrice,  cart: { ...state.cart, cartItems } };
+      Cookies.set("cartItems", JSON.stringify(cartItems));
+      return {
+        ...state,
+        totalPrice: totalPrice,
+        cart: { ...state.cart, cartItems },
+      };
     }
-    case 'SAVE_SHIPPING_ADDRESS':
-      Cookies.set('shippingAddress', JSON.stringify(action.payload));
+    case "SAVE_SHIPPING_ADDRESS":
+      Cookies.set("shippingAddress", JSON.stringify(action.payload));
       return {
         ...state,
         cart: {
@@ -41,12 +51,35 @@ export const cartReducer = (state: State, action: Action) => {
           },
         },
       };
-      case 'SAVE_PAYMENT_METHOD':
-        Cookies.set('paymentMethod', JSON.stringify(action.payload));
-        return {
-          ...state,
-          cart: { ...state.cart, paymentMethod: action.payload },
-        };
+    case "SAVE_PAYMENT_METHOD":
+      Cookies.set("paymentMethod", JSON.stringify(action.payload));
+      return {
+        ...state,
+        cart: { ...state.cart, paymentMethod: action.payload },
+      };
+    case "USER_LOGIN":
+      Cookies.set('userInfo',JSON.stringify(action.payload));
+      return { ...state, userInfo: action.payload };
+    case "USER_LOGOUT":
+      Cookies.remove('userInfo');
+      Cookies.remove('cartItems');
+      Cookies.remove('shippinhAddress');
+      Cookies.remove('paymentMethod');
+      return {
+        ...state,
+        userInfo: null,
+        cart: {
+          cartItems: [],
+          shippingAddress: { location: {} },
+          paymentMethod: "",
+        },
+      };
+      case 'DARK_MODE_ON':
+        Cookies.set('darkMode',JSON.stringify('ON'));
+        return { ...state, darkMode: 'ON' };
+      case 'DARK_MODE_OFF':
+        Cookies.set('darkMode', JSON.stringify('OFF') );
+        return { ...state, darkMode: 'OFF' };
     default: {
       return state;
     }
