@@ -26,18 +26,19 @@ import { useSnackbar } from 'notistack';
 import Cookies from 'js-cookie';
 import { useCart } from '../components/cart/hooks/useCart';
 import useStyles from '../utils/style';
+import { getError } from '../utils/error';
   
 const PlaceOrderPage = () => {
   const classes = useStyles();
   const router = useRouter();
-  const { state, dispatch } = useCart();
+  const { cartState, cartDispatch } = useCart();
   const {
     userInfo,
     cart: { cartItems, shippingAddress, paymentMethod },
-  } = state;
-  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100; // 123.456 => 123.46
+  } = cartState;
+  const round2 = (num:number) => Math.round(num * 100 + Number.EPSILON) / 100; // 123.456 => 123.46
   const itemsPrice = round2(
-    cartItems.reduce((a, c) => a + c.price * c.quantity, 0)
+    cartItems.reduce((a:number, c:Order) => a + c.price * c.quantity, 0)
   );
   const shippingPrice = itemsPrice > 200 ? 0 : 15;
   const taxPrice = round2(itemsPrice * 0.15);
@@ -70,17 +71,17 @@ const PlaceOrderPage = () => {
         },
         {
           headers: {
-           // authorization: `Bearer ${userInfo.token}`,
+            authorization: `Bearer ${userInfo.token}`,
           },
         }
       );
-      dispatch({ type: 'CART_CLEAR' });
+      cartDispatch({ type: 'CART_CLEAR' });
       Cookies.remove('cartItems');
       setLoading(false);
       router.push(`/order/${data.id}`);
     } catch (err) {
       setLoading(false);
-     // enqueueSnackbar(getError(err), { variant: 'error' });
+      enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
   return (
@@ -135,7 +136,7 @@ const PlaceOrderPage = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {cartItems.map((item) => (
+                      {cartItems.map((item:any) => (
                         <TableRow key={item.id}>
                           <TableCell>
                             <NextLink href={`/product/${item.slug}`} passHref>

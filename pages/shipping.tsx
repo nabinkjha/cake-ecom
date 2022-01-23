@@ -23,8 +23,8 @@ const ShippingPage = () => {
       getValues,
     } = useForm();
     const router = useRouter();
-    const { state, dispatch } = useCart();
-    const { userInfo,cart: { shippingAddress }, } = state;
+    const { cartState, cartDispatch } = useCart();
+    const { userInfo,cart: { shippingAddress }, } = cartState;
     const { location } = shippingAddress;
 
     useEffect(() => {
@@ -40,7 +40,7 @@ const ShippingPage = () => {
   
     const classes = useStyles();
     const submitHandler = ({ fullName, address, city, postalCode, country }:{ fullName:string, address:string, city:string, postalCode:string, country:string }) => {
-      dispatch({
+      cartDispatch({
         type: 'SAVE_SHIPPING_ADDRESS',
         payload: { fullName, address, city, postalCode, country, location },
       });
@@ -53,7 +53,7 @@ const ShippingPage = () => {
       const city = getValues('city')as string;
       const postalCode = getValues('postalCode')as string;
       const country = getValues('country')as string;
-      dispatch({
+      cartDispatch({
         type: 'SAVE_SHIPPING_ADDRESS',
         payload: { fullName, address, city, postalCode, country ,location:{}},
       });

@@ -25,6 +25,7 @@ const isAuth = async (req:NextApiRequest, res:NextApiResponse, next:any) => {
     const token = authorization.slice(7, authorization.length);
     jwt.verify(token, process.env.JWT_SECRET, (err:string, decode:string) => {
       if (err) {
+        console.log(err);
         res.status(401).send({ message: 'Token is not valid' });
       } else {
         req.user = decode;
