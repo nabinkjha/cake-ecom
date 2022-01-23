@@ -30,12 +30,12 @@ type CartItemsProps = {
 };
 
 const CartPage = () => {
-  const { state, dispatch } = useCart();
+  const { cartState, cartDispatch } = useCart();
   const router = useRouter();
-  const { cart, totalPrice } = state;
+  const { cart, totalPrice } = cartState;
   const { cartItems } = cart;
   const handleDelete = (product: ItemInBasket) => {
-    dispatch({ type: "REMOVE_CART_ITEM", payload: product });
+    cartDispatch({ type: "REMOVE_CART_ITEM", payload: product });
   };
   const checkoutHandler = () => {
     router.push("/shipping");
@@ -47,7 +47,7 @@ const CartPage = () => {
       window.alert("Sorry. Product is out of stock");
       return;
     }
-    dispatch({ type: "ADD_CART_ITEM", payload: { ...item, quantity } });
+    cartDispatch({ type: "ADD_CART_ITEM", payload: { ...item, quantity } });
   };
 
   return (
@@ -78,7 +78,7 @@ const CartPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {cartItems.map((product) => (
+                  {cartItems.map((product:ItemInBasket) => (
                     <TableRow key={product.id}>
                       <TableCell>
                         <NextLink href={`/product/${product.slug}`} passHref>
@@ -135,8 +135,8 @@ const CartPage = () => {
               <List>
                 <ListItem>
                   <Typography variant="h5">
-                    Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}{" "}
-                    items) : ₹{totalPrice}
+                    Subtotal ({cartItems.reduce((acc:number, curr:any) => acc + curr.quantity, 0)}{" "}
+                    items) : ₹{cartItems.reduce((acc:number, curr:any) => acc + (curr.price*curr.quantity), 0)}
                   </Typography>
                 </ListItem>
                 <ListItem>

@@ -1,11 +1,9 @@
 import type { Action, ItemInBasket, State } from "../types";
 import Cookies from "js-cookie";
 
-const calculateTotalPrice = (cartitems: Array<ItemInBasket>) => {
-  return cartitems.reduce((acc, curr) => acc + (curr.price*curr.quantity), 0);
-};
 
-export const cartReducer = (state: State, action: Action) => {
+
+export const cartReducer = (state: any, action: Action) => {
   switch (action.type) {
     case "ADD_CART_ITEM": {
       const newItem = action.payload;
@@ -17,13 +15,9 @@ export const cartReducer = (state: State, action: Action) => {
             item.name === existItem.name ? newItem : item
           )
         : [...state.cart.cartItems, newItem];
-      const totalPrice = calculateTotalPrice(cartItems);
-      console.log("Total Price",totalPrice)
-      console.log("Total Price",cartItems)
       Cookies.set("cartItems", JSON.stringify(cartItems));
       return {
         ...state,
-        totalPrice: totalPrice,
         cart: { ...state.cart, cartItems },
       };
     }
@@ -31,11 +25,9 @@ export const cartReducer = (state: State, action: Action) => {
       const cartItems = state.cart.cartItems.filter(
         (item) => item.id !== action.payload.id
       );
-      const totalPrice = calculateTotalPrice(cartItems);
       Cookies.set("cartItems", JSON.stringify(cartItems));
       return {
         ...state,
-        totalPrice: totalPrice,
         cart: { ...state.cart, cartItems },
       };
     }

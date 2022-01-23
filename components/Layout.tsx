@@ -24,7 +24,7 @@ import {
   Badge,
 } from "@mui/material";
 import Copyright from "./Copyright";
-import ThemeReducer from "./ThemeReducer";
+import ThemeReducer from "./cart/context/reducers/ThemeReducer";
 import useStyles from "../utils/style";
 import NextLink from "next/link";
 import { Box } from '@mui/system';
@@ -47,8 +47,8 @@ export default function Layout({
 }) {
   const classes = useStyles();
   const router = useRouter();
-  const { state, dispatch } = useCart();
-  const { cart, userInfo ,darkMode} = state;
+  const { cartState, cartDispatch } = useCart();
+  const { cart, userInfo ,darkMode} = cartState;
   const [sidbarVisible, setSidebarVisible] = useState<boolean|null>(false);
   const [darkModeStatus, setDarkModeStatus] = useState<boolean|null>(darkMode === 'ON');
 
@@ -86,7 +86,7 @@ export default function Layout({
   const darkModeChangeHandler = () => {
     const dispatchType= darkMode === "ON" ? 'DARK_MODE_OFF' : 'DARK_MODE_ON';
     setDarkModeStatus(!darkModeStatus);
-    dispatch({ type: dispatchType, payload: null });
+    cartDispatch({ type: dispatchType, payload: null });
 
   };
 
@@ -102,7 +102,7 @@ export default function Layout({
   };
   const logoutClickHandler = () => {
     setAnchorEl(null);
-    dispatch({ type: 'USER_LOGOUT',payload:null });
+    cartDispatch({ type: 'USER_LOGOUT',payload:null });
     router.push('/');
   };
 
@@ -262,9 +262,7 @@ export default function Layout({
         </Toolbar>
       </AppBar>
       <Container className={classes.main}>{children}</Container>
-      <footer className={classes.footer}>
-        <Typography>All rights reserved. Next Amazona.</Typography>
-      </footer>
+    <Copyright />
     </ThemeProvider>
   </div>
   );

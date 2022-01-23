@@ -32,6 +32,9 @@ const userInfo = Cookies.get("userInfo")
  const darkMode = Cookies.get("darkMode")
   ? JSON.parse(Cookies.get("darkMode")) as string
   : null;
+  const totalPrice=  Cookies.get("totalPrice")
+  ? JSON.parse(Cookies.get("totalPrice")) as number
+  : 0;
   const cartcookie: cart = {
   cartItems: cartItems,
   shippingAddress: shippingAddress,
@@ -42,14 +45,13 @@ const userInfo = Cookies.get("userInfo")
 const initialState: State = {
   cart: cartcookie,
   userInfo: userInfo,
-  totalPrice: 0,
   darkMode:darkMode
 };
 
 export function CartProvider({ children }: CartProviderProps) {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [cartState, cartDispatch] = useReducer(cartReducer, initialState);
 
-  const value = useMemo(() => ({ state, dispatch }), [state]);
+  const value = useMemo(() => ({ cartState, cartDispatch }), [cartState]);
   return (
     <CartStateContext.Provider value={value}>
       {children}

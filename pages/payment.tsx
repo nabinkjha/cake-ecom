@@ -23,10 +23,10 @@ const PaymentPage = () => {
   const classes = useStyles();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState('');
-  const { state, dispatch } = useCart();
+  const { cartState, cartDispatch } = useCart();
   const {
     cart: { shippingAddress },
-  } = state;
+  } = cartState;
   useEffect(() => {
     if (!shippingAddress.address) {
       router.push('/shipping');
@@ -40,7 +40,7 @@ const PaymentPage = () => {
     if (!paymentMethod) {
       enqueueSnackbar('Payment method is required', { variant: 'error' });
     } else {
-      dispatch({ type: 'SAVE_PAYMENT_METHOD', payload: paymentMethod });
+      cartDispatch({ type: 'SAVE_PAYMENT_METHOD', payload: paymentMethod });
       router.push('/placeorder');
     }
   };
