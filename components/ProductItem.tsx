@@ -18,9 +18,9 @@ import axios from "axios";
 
 function ProductItem(product: ItemInBasket) {
   const router = useRouter();
-  const { state, dispatch } = useCart();
+  const { cartState, cartDispatch } = useCart();
   const addToCartHandler = async (product: ItemInBasket) => {
-    const existItem = state.cartitems.find((x) => x.id === product.id);
+    const existItem = cartState.cartitems.find((x) => x.id === product.id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product.id}`);
 
@@ -28,7 +28,7 @@ function ProductItem(product: ItemInBasket) {
       window.alert("Sorry. Product is out of stock");
       return;
     }
-    dispatch({ type: "addProduct", payload: { ...product, quantity } });
+    cartDispatch({ type: "addProduct", payload: { ...product, quantity } });
     router.push("/cart");
   };
 
