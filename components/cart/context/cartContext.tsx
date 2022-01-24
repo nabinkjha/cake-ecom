@@ -14,7 +14,7 @@ import { User } from "@prisma/client";
 type Dispatch = (action: Action) => void;
 type CartProviderProps = { readonly children: React.ReactNode };
 export const CartStateContext = createContext<
-  { state: State; dispatch: Dispatch } | undefined
+  { cartState: State; cartDispatch: Dispatch } | undefined
 >(undefined);
 
 const cartItems = Cookies.get("cartItems")

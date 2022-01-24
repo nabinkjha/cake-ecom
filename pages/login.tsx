@@ -26,8 +26,8 @@ export default function Login() {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const router = useRouter();
   const { redirect } = router.query;
-  const { state, dispatch } = useCart();
-  const { userInfo } = state;
+  const {  cartState, cartDispatch} = useCart();
+  const { userInfo } = cartState;
   useEffect(() => {
     if (userInfo) {
       router.push("/");
@@ -49,7 +49,7 @@ export default function Login() {
         email,
         password,
       });
-      dispatch({ type: "USER_LOGIN", payload: data });
+      cartDispatch({ type: "USER_LOGIN", payload: data });
 
       router.push(redirect || "/");
     } catch (err) {

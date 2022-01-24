@@ -21,9 +21,9 @@ import { ItemInBasket } from "../components/cart/context/types";
 
 const Home: NextPage = ({ data }: { data: SearchProps }) => {
   const router = useRouter();
-  const { state, dispatch } = useCart();
+  const { cartState, cartDispatch} = useCart();
   const addToCartHandler = async (product: ItemInBasket) => {
-    const existItem = state.cart.cartItems.find((x) => x.id === product.id);
+    const existItem = cartState.cart.cartItems.find((x) => x.id === product.id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product.id}`);
 
@@ -31,7 +31,7 @@ const Home: NextPage = ({ data }: { data: SearchProps }) => {
       window.alert("Sorry. Product is out of stock");
       return;
     }
-    dispatch({ type: "ADD_CART_ITEM", payload: { ...product, quantity } });
+    cartDispatch({ type: "ADD_CART_ITEM", payload: { ...product, quantity } });
     router.push("/cart");
   };
 
