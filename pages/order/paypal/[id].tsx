@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useReducer } from "react";
 import dynamic from "next/dynamic";
-import Layout from "../../components/Layout";
+import Layout from "../../../components/Layout";
 import NextLink from "next/link";
 import Image from "next/image";
 import type Prisma from "@prisma/client";
-import { useCart } from "../../components/cart/hooks/useCart";
-import useStyles from "../../utils/style";
+import { useCart } from "../../../components/cart/hooks/useCart";
+import useStyles from "../../../utils/style";
 import {
   Grid,
   TableContainer,
@@ -25,10 +25,10 @@ import {
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
-import { getError } from "../../utils/error";
+import { getError } from "../../../utils/error";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
-import { paymentReducer } from "../../components/cart/context/reducers/paymentReducer";
-import { initialPaymentState } from "../../components/cart/context/paymentContext";
+import { paymentReducer } from "../../../components/cart/context/reducers/paymentReducer";
+import { initialPaymentState } from "../../../components/cart/context/paymentContext";
 
 function Order({ params }: { params: Prisma.Order }) {
   const orderId = params.id;
@@ -123,7 +123,7 @@ function Order({ params }: { params: Prisma.Order }) {
       try {
         dispatch({ type: "PAY_REQUEST", payload: null });
         const { data } = await axios.put(
-          `/api/orders/${order.id}/pay`,
+          `/api/order/paypal/${order.id}/pay`,
           details,
           {
             headers: { authorization: `Bearer ${userInfo.token}` },

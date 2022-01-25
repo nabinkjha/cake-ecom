@@ -14,7 +14,6 @@ handler.put(async (req: NextApiRequest, res: NextApiResponse) => {
       id: +req.query.id,
     },
   });
-  console.log("delivery.js" + order);
   if (order) {
     order.isDelivered = true;
     order.deliveredAt = new Date(Date.now());

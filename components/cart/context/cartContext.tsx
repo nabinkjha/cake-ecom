@@ -24,7 +24,7 @@ const shippingAddress = Cookies.get("shippingAddress")
   ? JSON.parse(Cookies.get("shippingAddress"))
   : { location: {} };
 const paymentMethod = Cookies.get("paymentMethod")
-  ? Cookies.get("paymentMethod")
+  ? JSON.parse(Cookies.get("paymentMethod"))
   : "";
 const userInfo = Cookies.get("userInfo")
   ? JSON.parse(Cookies.get("userInfo")) as User

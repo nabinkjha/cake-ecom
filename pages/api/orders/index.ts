@@ -21,7 +21,7 @@ handler.post(async (req:NextApiRequest, res:NextApiResponse) => {
     orderItem.price  = item.price
     return orderItem;
 });
-console.log(orderItems);
+
 try {
   const order =  await prisma.order.create({
     data:{
@@ -46,6 +46,7 @@ try {
     .finally(() => {
       prisma.$disconnect();
     });
+    console.log('Order created successfully ',JSON.stringify(order));
   res.status(201).send(order);
 } catch (error) {
   console.log(error);

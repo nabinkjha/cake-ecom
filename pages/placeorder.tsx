@@ -40,8 +40,8 @@ const PlaceOrderPage = () => {
   const itemsPrice = round2(
     cartItems.reduce((a:number, c:Order) => a + c.price * c.quantity, 0)
   );
-  const shippingPrice = itemsPrice > 200 ? 0 : 15;
-  const taxPrice = round2(itemsPrice * 0.15);
+  const shippingPrice = itemsPrice > 200 ? 0 : 1;
+  const taxPrice = 0;//round2(itemsPrice * 0.01);
   const totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
 
   useEffect(() => {
@@ -78,7 +78,12 @@ const PlaceOrderPage = () => {
       cartDispatch({ type: 'CART_CLEAR' });
       Cookies.remove('cartItems');
       setLoading(false);
-      router.push(`/order/${data.id}`);
+      if(paymentMethod === "PayPal"){
+        router.push(`/order/paypal/${data.id}`);
+      }else if(paymentMethod === "Stripe"){
+        router.push(`/order/stripe/${data.id}`);
+      }
+     
     } catch (err) {
       setLoading(false);
       enqueueSnackbar(getError(err), { variant: 'error' });
