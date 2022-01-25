@@ -299,6 +299,7 @@ function Order({ params }: { params: Prisma.Order }) {
                   <ListItem>
                     { (
                       <div className={classes.fullWidth}>
+                          {stripeLoading && <CircularProgress />}
                            <Button
                       fullWidth
                       variant="contained"
