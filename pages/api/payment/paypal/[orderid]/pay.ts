@@ -1,6 +1,6 @@
 import nc from "next-connect";
-import onError from "../../../../utils/error";
-import { isAuth } from "../../../../utils/auth";
+import onError from "../../../../../utils/error";
+import { isAuth } from "../../../../../utils/auth";
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 const prisma = new PrismaClient();
@@ -13,7 +13,7 @@ handler.put(async (req: NextApiRequest, res: NextApiResponse) => {
   console.log("The API request is received to update the Order", req.body);
   const order = await prisma.order.findUnique({
     where: {
-      id: +req.query.id,
+      id: +req.query.orderid,
     },
   });
   if (order) {

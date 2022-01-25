@@ -20,11 +20,11 @@ import { ItemInBasket } from "./cart/context/types";
 export const ProductDetails = (itemInBasket: ItemInBasket) => {
   console.log(itemInBasket);
   const { id, imageUrl, name, price } = itemInBasket;
-  const { dispatch } = useCart();
+  const { cartDispatch } = useCart();
   const classes = useStyles();
   const router = useRouter();
   const addToCart = () => {
-    dispatch({ type: 'ADD_CART_ITEM', payload: itemInBasket });
+    cartDispatch({ type: 'ADD_CART_ITEM', payload: itemInBasket });
     router.push('/cart');
   };
 

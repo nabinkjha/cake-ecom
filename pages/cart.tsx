@@ -32,7 +32,7 @@ type CartItemsProps = {
 const CartPage = () => {
   const { cartState, cartDispatch } = useCart();
   const router = useRouter();
-  const { cart, totalPrice } = cartState;
+  const { cart } = cartState;
   const { cartItems } = cart;
   const handleDelete = (product: ItemInBasket) => {
     cartDispatch({ type: "REMOVE_CART_ITEM", payload: product });

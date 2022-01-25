@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useReducer } from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import dynamic from "next/dynamic";
-import Layout from "../../components/Layout";
+import Layout from "../../../components/Layout";
 import NextLink from "next/link";
 import Image from "next/image";
 import type Prisma from "@prisma/client";
-import { useCart } from "../../components/cart/hooks/useCart";
-import useStyles from "../../utils/style";
+import { useCart } from "../../../components/cart/hooks/useCart";
+import useStyles from "../../../utils/style";
 import {
   Grid,
   TableContainer,
@@ -25,14 +25,14 @@ import {
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
-import { getError } from "../../utils/error";
-import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
-import { paymentReducer } from "../../components/cart/context/reducers/paymentReducer";
-import { initialPaymentState } from "../../components/cart/context/paymentContext";
+import { getError } from "../../../utils/error";
+import { paymentReducer } from "../../../components/cart/context/reducers/paymentReducer";
+import { initialPaymentState } from "../../../components/cart/context/paymentContext";
+import { fetchPostJSON } from "../../../utils/api-helpers";
+import { redirectToCheckout } from "../../../utils/stripe";
 
 function Order({ params }: { params: Prisma.Order }) {
   const orderId = params.id;
-  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
   const classes = useStyles();
   const router = useRouter();
   const { cartState } = useCart();
@@ -86,56 +86,24 @@ function Order({ params }: { params: Prisma.Order }) {
       if (successDeliver) {
         dispatch({ type: "DELIVER_RESET", payload: null });
       }
-    } else {
-      const loadPaypalScript = async () => {
-        const { data: clientId } = await axios.get("/api/keys/paypal", {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        });
-        paypalDispatch({
-          type: "resetOptions",
-          value: {
-            "client-id": clientId,
-            currency: "USD",
-          },
-        });
-        paypalDispatch({ type: "setLoadingStatus", value: "pending" });
-      };
-      loadPaypalScript();
-    }
-  }, [order, successPay, successDeliver]);
+    } 
+  }, [order]);
   const { enqueueSnackbar } = useSnackbar();
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const stripePaymentHandler= async ()=> {
+     setStripeLoading(true);
 
-  function createOrder(data: any, actions: any) {
-    return actions.order
-      .create({
-        purchase_units: [
-          {
-            amount: { value: totalPrice },
-          },
-        ],
-      })
-      .then((orderID: number) => {
-        return orderID;
-      });
-  }
-  function onApprove(data: any, actions: any) {
-    return actions.order.capture().then(async function (details: any) {
-      try {
-        dispatch({ type: "PAY_REQUEST", payload: null });
-        const { data } = await axios.put(
-          `/api/orders/${order.id}/pay`,
-          details,
-          {
-            headers: { authorization: `Bearer ${userInfo.token}` },
-          }
-        );
-        dispatch({ type: "PAY_SUCCESS", payload: data });
-        enqueueSnackbar("Order is paid", { variant: "success" });
-      } catch (err) {
-        dispatch({ type: "PAY_FAIL", payload: getError(err) });
-        enqueueSnackbar(getError(err), { variant: "error" });
-      }
-    });
+    const response = await fetchPostJSON(
+      `/api/payment/stripe/${orderId}/cart`,
+      {order}
+    );
+
+    if (response.statusCode === 500) {
+      console.error(response.message);
+      return;
+    }
+    setStripeLoading(false);
+    redirectToCheckout({ id: response.id });
   }
 
   function onError(err: any) {
@@ -329,15 +297,16 @@ function Order({ params }: { params: Prisma.Order }) {
                 </ListItem>
                 {!isPaid && (
                   <ListItem>
-                    {isPending ? (
-                      <CircularProgress />
-                    ) : (
+                    { (
                       <div className={classes.fullWidth}>
-                        <PayPalButtons
-                          createOrder={createOrder}
-                          onApprove={onApprove}
-                          onError={onError}
-                        ></PayPalButtons>
+                           <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      onClick={stripePaymentHandler}
+                    >
+                      Stripe Payment
+                    </Button>
                       </div>
                     )}
                   </ListItem>
@@ -368,4 +337,4 @@ export async function getServerSideProps({ params }: { params: any }) {
   return { props: { params } };
 }
 
-export default dynamic(() => Promise.resolve(Order), { ssr: false });
+export default dynamic(() => Promise.resolve(Order), { ssr: true });
