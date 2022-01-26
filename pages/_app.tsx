@@ -5,7 +5,6 @@ import "../styles/globals.css";
 import { CartProvider } from "../components/cart/context/cartContext";
 import { SnackbarProvider } from "notistack";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { PaymentProvider } from "../components/cart/context/paymentContext";
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const jssStyles = document.querySelector("#jss-server-side");
@@ -16,11 +15,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <SnackbarProvider anchorOrigin={{ vertical: "top", horizontal: "center" }}>
       <CartProvider>
-        <PaymentProvider>
-          <PayPalScriptProvider deferLoading={true}>
-            <Component {...pageProps} />
-          </PayPalScriptProvider>
-        </PaymentProvider>
+        <PayPalScriptProvider deferLoading={true}>
+          <Component {...pageProps} />
+        </PayPalScriptProvider>
       </CartProvider>
     </SnackbarProvider>
   );

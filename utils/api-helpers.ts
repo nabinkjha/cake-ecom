@@ -1,3 +1,7 @@
+import { useCart } from "@/components/cart/hooks/useCart";
+import axios from "axios";
+import { getError } from "./error";
+
 export async function fetchGetJSON(url: string) {
     try {
       const data = await fetch(url).then((res) => res.json());
@@ -28,4 +32,15 @@ export async function fetchGetJSON(url: string) {
       throw new Error(err.message);
     }
   }
-  
+  const fetchOrder = async (orderId:number,token:string, cartDispatch:any) => {
+    try {
+      cartDispatch({ type: "FETCH_REQUEST", payload: null });
+      const { data } = await axios.get(`/api/orders/${orderId}`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      cartDispatch({ type: "FETCH_SUCCESS", payload: data });
+    } catch (err) {
+      cartDispatch({ type: "FETCH_FAIL", payload: getError(err) });
+    }
+  };
+  export  {fetchOrder};

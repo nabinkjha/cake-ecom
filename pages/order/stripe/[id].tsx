@@ -17,32 +17,20 @@ import {
   TableCell,
   Link,
   CircularProgress,
-  Button,
   Card,
   List,
   ListItem,
 } from "@mui/material";
-import axios from "axios";
 import { useRouter } from "next/router";
-import { useSnackbar } from "notistack";
-import { getError } from "../../../utils/error";
-import { paymentReducer } from "../../../components/cart/context/reducers/paymentReducer";
-import { initialPaymentState } from "../../../components/cart/context/paymentContext";
 import StripeBuyButton from "@/components/StripeBuyButton";
-
+import DeliveryButton from "@/components/DeliveryButton";
+import { fetchOrder } from "@/utils/api-helpers";
 function Order({ params }: { params: Prisma.Order }) {
   const orderId = params.id;
   const classes = useStyles();
   const router = useRouter();
-  const { cartState } = useCart();
-  const { userInfo } = cartState;
-
-  const [paymentStatus, dispatch] = useReducer(
-    paymentReducer,
-    initialPaymentState
-  );
-  const { loading, error, order, successPay, loadingDeliver, successDeliver } =
-    paymentStatus;
+  const { cartState,cartDispatch } = useCart();
+  const { loading, error, order, userInfo,successPay, loadingDeliver, successDeliver } =  cartState;
   const {
     shippingAddress,
     paymentMethod,
@@ -61,51 +49,21 @@ function Order({ params }: { params: Prisma.Order }) {
     if (!userInfo) {
       return router.push("/login");
     }
-    const fetchOrder = async () => {
-      try {
-        dispatch({ type: "FETCH_REQUEST", payload: null });
-        const { data } = await axios.get(`/api/orders/${orderId}`, {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        });
-        dispatch({ type: "FETCH_SUCCESS", payload: data });
-      } catch (err) {
-        dispatch({ type: "FETCH_FAIL", payload: getError(err) });
-      }
-    };
     if (
       !order.id ||
       successPay ||
       successDeliver ||
       (order.id && order.id !== +orderId)
     ) {
-      fetchOrder();
+      fetchOrder(orderId,userInfo.token,cartDispatch);
       if (successPay) {
-        dispatch({ type: "PAY_RESET", payload: null });
+        cartDispatch({ type: "PAY_RESET", payload: null });
       }
       if (successDeliver) {
-        dispatch({ type: "DELIVER_RESET", payload: null });
+        cartDispatch({ type: "DELIVER_RESET", payload: null });
       }
     } 
   }, [order]);
-  const { enqueueSnackbar } = useSnackbar();
-
-  async function deliverOrderHandler() {
-    try {
-      dispatch({ type: "DELIVER_REQUEST", payload: "" });
-      const { data } = await axios.put(
-        `/api/orders/${order.id}/deliver`,
-        {},
-        {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        }
-      );
-      dispatch({ type: "DELIVER_SUCCESS", payload: data });
-      enqueueSnackbar("Order is delivered", { variant: "success" });
-    } catch (err) {
-      dispatch({ type: "DELIVER_FAIL", payload: getError(err) });
-      enqueueSnackbar(getError(err), { variant: "error" });
-    }
-  }
 
   return (
     <Layout title={`Order ${orderId}`}>
@@ -285,15 +243,9 @@ function Order({ params }: { params: Prisma.Order }) {
                 )}
                 {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
                   <ListItem>
-                    {loadingDeliver && <CircularProgress />}
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      onClick={deliverOrderHandler}
-                    >
-                      Deliver Order
-                    </Button>
+                    <DeliveryButton order={order}>
+
+                    </DeliveryButton>
                   </ListItem>
                 )}
               </List>

@@ -27,25 +27,42 @@ const paymentMethod = Cookies.get("paymentMethod")
   ? JSON.parse(Cookies.get("paymentMethod"))
   : "";
 const userInfo = Cookies.get("userInfo")
-  ? JSON.parse(Cookies.get("userInfo")) as User
+  ? (JSON.parse(Cookies.get("userInfo")) as User)
   : null;
- const darkMode = Cookies.get("darkMode")
-  ? JSON.parse(Cookies.get("darkMode")) as string
+const darkMode = Cookies.get("darkMode")
+  ? (JSON.parse(Cookies.get("darkMode")) as string)
   : null;
-  const totalPrice=  Cookies.get("totalPrice")
-  ? JSON.parse(Cookies.get("totalPrice")) as number
+const totalPrice = Cookies.get("totalPrice")
+  ? (JSON.parse(Cookies.get("totalPrice")) as number)
   : 0;
-  const cartcookie: cart = {
+const cartcookie: cart = {
   cartItems: cartItems,
   shippingAddress: shippingAddress,
   paymentMethod: paymentMethod,
 };
-
-
+const order={
+  shippingAddress:{},
+    paymentMethod:"",
+    orderItems:[],
+    itemsPrice:null,
+    taxPrice:null,
+    shippingPrice:null,
+    totalPrice:null,
+    isPaid:false,
+    paidAt:null,
+    isDelivered:false,
+    deliveredAt:null,
+}
 const initialState: State = {
   cart: cartcookie,
+  order:order,
   userInfo: userInfo,
-  darkMode:darkMode
+  darkMode: darkMode,
+  loading: true,
+  error: "",
+  successPay: "",
+  loadingDeliver: "",
+  successDeliver: "",
 };
 
 export function CartProvider({ children }: CartProviderProps) {
