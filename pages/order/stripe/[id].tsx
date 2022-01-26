@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import dynamic from "next/dynamic";
-import Layout from "../../../components/Layout";
+import Layout from "@/components/Layout";
 import NextLink from "next/link";
 import Image from "next/image";
-import type Prisma from "@prisma/client";
-import { useCart } from "../../../components/cart/hooks/useCart";
-import useStyles from "../../../utils/style";
+import { useCart } from "@/components/cart/hooks/useCart";
+import useStyles from "@/utils/style";
 import {
   Grid,
   TableContainer,
@@ -25,12 +24,24 @@ import { useRouter } from "next/router";
 import StripeBuyButton from "@/components/StripeBuyButton";
 import DeliveryButton from "@/components/DeliveryButton";
 import { fetchOrder } from "@/utils/api-helpers";
-function Order({ params }: { params: Prisma.Order }) {
+import axios from "axios";
+import { useSnackbar } from "notistack";
+import { getError } from "@/utils/error";
+
+function Order({ params }: { params: any }) {
   const orderId = params.id;
+  const { enqueueSnackbar } = useSnackbar();
   const classes = useStyles();
   const router = useRouter();
-  const { cartState,cartDispatch } = useCart();
-  const { loading, error, order, userInfo,successPay, loadingDeliver, successDeliver } =  cartState;
+  const { cartState, cartDispatch } = useCart();
+  const {
+    loading,
+    error,
+    order,
+    userInfo,
+    successPay,
+    successDeliver,
+  } = cartState;
   const {
     shippingAddress,
     paymentMethod,
@@ -44,26 +55,53 @@ function Order({ params }: { params: Prisma.Order }) {
     isDelivered,
     deliveredAt,
   } = order;
+  const { session_id } = router.query;
+  const updateOrder = async (
+    session_id: string,
+    token: string,
+    orderid: number
+  ) => {
+    try {
+      if (session_id) {
+        console.log('Updating the Order Status...');
+        const { data } = await axios.put(
+          `/api/payment/stripe/confirm/${session_id}?orderid=${orderid}`,
+          {},
+          {
+            headers: { authorization: `Bearer ${token}` },
+          }
+        );
+        router.push(`/order/stripe/${data?.order?.id}`);
+      }
+    } catch (error) {
+      enqueueSnackbar(getError(error), { variant: "error" });
+    }
+  };
 
   useEffect(() => {
     if (!userInfo) {
       return router.push("/login");
     }
-    if (
-      !order.id ||
-      successPay ||
-      successDeliver ||
-      (order.id && order.id !== +orderId)
-    ) {
-      fetchOrder(orderId,userInfo.token,cartDispatch);
-      if (successPay) {
-        cartDispatch({ type: "PAY_RESET", payload: null });
+    console.log(session_id);
+    if (session_id?.length > 0) {
+      updateOrder(session_id, userInfo.token, orderId);
+    } else {
+      if (
+        !order.id ||
+        successPay ||
+        successDeliver ||
+        (order.id && order.id !== +orderId)
+      ) {
+        fetchOrder(orderId, userInfo.token, cartDispatch);
+        if (successPay) {
+          cartDispatch({ type: "PAY_RESET", payload: null });
+        }
+        if (successDeliver) {
+          cartDispatch({ type: "DELIVER_RESET", payload: null });
+        }
       }
-      if (successDeliver) {
-        cartDispatch({ type: "DELIVER_RESET", payload: null });
-      }
-    } 
-  }, [order]);
+    }
+  }, [order,session_id]);
 
   return (
     <Layout title={`Order ${orderId}`}>
@@ -234,18 +272,12 @@ function Order({ params }: { params: Prisma.Order }) {
                 </ListItem>
                 {!isPaid && (
                   <ListItem>
-                    { (
-                         <StripeBuyButton order={order}>
-
-                         </StripeBuyButton>
-                    )}
+                    {<StripeBuyButton order={order}></StripeBuyButton>}
                   </ListItem>
                 )}
                 {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
                   <ListItem>
-                    <DeliveryButton order={order}>
-
-                    </DeliveryButton>
+                    <DeliveryButton order={order}></DeliveryButton>
                   </ListItem>
                 )}
               </List>

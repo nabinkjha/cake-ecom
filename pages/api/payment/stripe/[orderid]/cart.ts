@@ -51,7 +51,7 @@ export default async function handler(
           allowed_countries: ['US', 'GB'],
         },
         line_items:stripeItems,
-        success_url: `${req.headers.origin}/order/stripe/result?session_id={CHECKOUT_SESSION_ID}&orderid=${order.id}`,
+        success_url: `${req.headers.origin}/order/stripe/${order.id}?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.origin}/placeorder`,
       };
       const checkoutSession: Stripe.Checkout.Session = await stripe.checkout.sessions.create(

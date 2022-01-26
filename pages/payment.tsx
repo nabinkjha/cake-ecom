@@ -22,17 +22,14 @@ const PaymentPage = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const classes = useStyles();
   const router = useRouter();
-  const [paymentMethod, setPaymentMethod] = useState('');
   const { cartState, cartDispatch } = useCart();
   const {
-    cart: { shippingAddress },
+    cart: { shippingAddress,paymentMethod },
   } = cartState;
   useEffect(() => {
     if (!shippingAddress.address) {
       router.push('/shipping');
-    } else {
-      setPaymentMethod(Cookies.get('paymentMethod') || '');
-    }
+    } 
   }, []);
   const submitHandler = (e) => {
     closeSnackbar();
@@ -48,7 +45,7 @@ const PaymentPage = () => {
     <Layout title="Payment Method">
       <CheckoutWizard activeStep={2}></CheckoutWizard>
       <form className={classes.form} onSubmit={submitHandler}>
-        <Typography component="h1" variant="h1">
+        <Typography component="h5" variant="h5">
           Payment Method
         </Typography>
         <List>
