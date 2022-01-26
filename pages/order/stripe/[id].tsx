@@ -28,8 +28,7 @@ import { useSnackbar } from "notistack";
 import { getError } from "../../../utils/error";
 import { paymentReducer } from "../../../components/cart/context/reducers/paymentReducer";
 import { initialPaymentState } from "../../../components/cart/context/paymentContext";
-import { fetchPostJSON } from "../../../utils/api-helpers";
-import { redirectToCheckout } from "../../../utils/stripe";
+import StripeBuyButton from "@/components/StripeBuyButton";
 
 function Order({ params }: { params: Prisma.Order }) {
   const orderId = params.id;
@@ -89,26 +88,6 @@ function Order({ params }: { params: Prisma.Order }) {
     } 
   }, [order]);
   const { enqueueSnackbar } = useSnackbar();
-  const [stripeLoading, setStripeLoading] = useState(false);
-  const stripePaymentHandler= async ()=> {
-     setStripeLoading(true);
-
-    const response = await fetchPostJSON(
-      `/api/payment/stripe/${orderId}/cart`,
-      {order}
-    );
-
-    if (response.statusCode === 500) {
-      console.error(response.message);
-      return;
-    }
-    setStripeLoading(false);
-    redirectToCheckout({ id: response.id });
-  }
-
-  function onError(err: any) {
-    enqueueSnackbar(getError(err), { variant: "error" });
-  }
 
   async function deliverOrderHandler() {
     try {
@@ -298,17 +277,9 @@ function Order({ params }: { params: Prisma.Order }) {
                 {!isPaid && (
                   <ListItem>
                     { (
-                      <div className={classes.fullWidth}>
-                          {stripeLoading && <CircularProgress />}
-                           <Button
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      onClick={stripePaymentHandler}
-                    >
-                      Stripe Payment
-                    </Button>
-                      </div>
+                         <StripeBuyButton order={order}>
+
+                         </StripeBuyButton>
                     )}
                   </ListItem>
                 )}

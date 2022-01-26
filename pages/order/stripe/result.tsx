@@ -1,43 +1,63 @@
+import { useState, useReact, useEffect } from "react";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useCart } from "../../../components/cart/hooks/useCart";
+import axios from "axios";
+import Head from "next/head";
+
 import { useSnackbar } from "notistack";
 import { getError } from "../../../utils/error";
-import axios from "axios";
+import { useCart } from "@/components/cart/hooks/useCart";
+import Layout from "@/components/Layout";
 
-  const updateOrderStatus = async function (sessionid:string,orderid: number) {
+const useOrder = (session_id: string, orderid: number) => {
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
   const { cartState } = useCart();
   const { userInfo } = cartState;
-  const router = useRouter();
-  const { enqueueSnackbar } = useSnackbar();
-    try {
-      const { data } = await axios.put(
-        `/api/payment/stripe/pay/${sessionid}?orderid=${orderid}`,
-        {},
-        {
-          headers: { authorization: `Bearer ${userInfo?.token}` },
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      setLoading(true);
+      try {
+        if (session_id) {
+          const{ data }= await axios.put(
+            `/api/payment/stripe/confirm/${session_id}?orderid=${orderid}`,
+            {},
+            {
+              headers: { authorization: `Bearer ${userInfo?.token}` },
+            }
+          );
+          console.log(data);
+          setOrder(data?.order);
         }
-      );
-      if(data?.order?.id >0){
-        enqueueSnackbar("Order is paid", { variant: "success" });
-        router.push(`/order/stripe/${data.order.id}`);
+      } catch (error) {
+        setOrder(null);
+        enqueueSnackbar(getError(error), { variant: "error" });
       }
-     
-    } catch (err) {
-      enqueueSnackbar(getError(err), { variant: "error" });
-    }
-  }
+      setLoading(false);
+    };
+    fetchOrder();
+  }, [session_id]);
+  return { order, loading };
+};
 
 const ResultPage: NextPage = () => {
   const router = useRouter();
-  if (router.query.session_id) {// Runs twice and value is NULL for first time.
-    updateOrderStatus(router.query.session_id,router.query.orderid);
-  }
-
-  return (
-  <>
-    <h1>Payment is updated...</h1>
-  </>
+  const { session_id, orderid } = router.query;
+  const { order, loading } = useOrder(session_id, orderid);
+   return (
+    <Layout>
+      <Head>
+        <title> Thank you</title>
+        <meta name="description" content="Thank you for your purchase" />
+      </Head>
+      <h1>Payment has been approved by Stripe</h1>
+      {loading && <p> Payment update is in progress...</p>}
+      {order && (
+        <p> Your order is confirmed, with order number: {order.id} </p>
+      )}
+    </Layout>
   );
 };
 
