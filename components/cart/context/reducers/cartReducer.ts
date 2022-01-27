@@ -70,11 +70,11 @@ export const cartReducer = (state: State, action: Action) => {
     case "DARK_MODE_OFF":
       Cookies.set("darkMode", JSON.stringify("OFF"));
       return { ...state, darkMode: "OFF" };
-    case "FETCH_REQUEST":
+    case "ORDER_FETCH_REQUEST":
       return { ...state, loading: true, error: "" };
-    case "FETCH_SUCCESS":
+    case "ORDER_FETCH_SUCCESS":
       return { ...state, loading: false, order: action.payload, error: "" };
-    case "FETCH_FAIL":
+    case "ORDER_FETCH_FAIL":
       return { ...state, loading: false, error: action.payload };
     case "PAY_REQUEST":
       return { ...state, loadingPay: true };
@@ -84,6 +84,7 @@ export const cartReducer = (state: State, action: Action) => {
       return { ...state, loadingPay: false, errorPay: action.payload };
     case "PAY_RESET":
       return { ...state, loadingPay: false, successPay: false, errorPay: "" };
+
     case "DELIVER_REQUEST":
       return { ...state, loadingDeliver: true };
     case "DELIVER_SUCCESS":
@@ -97,6 +98,42 @@ export const cartReducer = (state: State, action: Action) => {
         successDeliver: false,
         errorDeliver: "",
       };
+
+    case "USER_FETCH_REQUEST":
+      return { ...state, loading: true, error: "" };
+    case "USER_FETCH_SUCCESS":
+      console.log(action.payload);
+      return { ...state, loading: false, users: action.payload, error: "" };
+    case "USER_FETCH_FAIL":
+      return { ...state, loading: false, error: action.payload };
+    case "USER_DELETE_REQUEST":
+      return { ...state, loadingDelete: true };
+    case "USER_DELETE_SUCCESS":
+      return { ...state, loadingDelete: false, successDelete: true };
+    case "USER_DELETE_FAIL":
+      return { ...state, loadingDelete: false };
+    case "USER_DELETE_RESET":
+      return { ...state, loadingDelete: false, successDelete: false };
+    case "USER_UPDATE_REQUEST":
+      return { ...state, loadingDelete: true };
+    case "USER_UPDATE_SUCCESS":
+      return { ...state, loadingDelete: false, successDelete: true };
+    case "USER_UPDATE_FAIL":
+      return { ...state, loadingDelete: false };
+    case "USER_UPDATE_RESET":
+      return { ...state, loadingDelete: false, successDelete: false };
+    case "ORDERS_FETCH_REQUEST":
+      return { ...state, loading: true, error: "" };
+    case "ORDERS_FETCH_SUCCESS":
+      return { ...state, loading: false, orders: action.payload, error: "" };
+    case "ORDERS_FETCH_FAIL":
+      return { ...state, loading: false, error: action.payload };
+    case "SUMMARY_FETCH_REQUEST":
+      return { ...state, loading: true, error: "" };
+    case "SUMMARY_FETCH_SUCCESS":
+      return { ...state, loading: false, summary: action.payload, error: "" };
+    case "SUMMARY_FETCH_FAIL":
+      return { ...state, loading: false, error: action.payload };
     default: {
       return state;
     }

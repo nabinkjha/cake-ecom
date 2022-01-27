@@ -53,6 +53,14 @@ const order={
     isDelivered:false,
     deliveredAt:null,
 }
+const summary ={
+  ordersCount: 0,
+  productsCount:0,
+  usersCount:0,
+  ordersPrice: 0,
+  salesData: []
+}
+
 const initialState: State = {
   cart: cartcookie,
   order:order,
@@ -63,6 +71,13 @@ const initialState: State = {
   successPay: "",
   loadingDeliver: "",
   successDeliver: "",
+  users:[],
+  successDelete:"",
+  loadingDelete:"",
+  successUpdate:"",
+  loadingUpdate:"",
+  orders:[],
+  summary:summary
 };
 
 export function CartProvider({ children }: CartProviderProps) {

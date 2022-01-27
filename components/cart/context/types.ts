@@ -10,9 +10,9 @@ export type Action =
   | { type: "SAVE_PAYMENT_METHOD"; payload: string }
   | { type: "USER_LOGIN"; payload: string }
   | { type: "USER_LOGOUT"; payload: string }
-  | { type: "FETCH_REQUEST"; payload: null }
-  | { type: "FETCH_SUCCESS"; payload: Prisma.Order }
-  | { type: "FETCH_FAIL"; payload: string }
+  | { type: "ORDER_FETCH_REQUEST"; payload: null }
+  | { type: "ORDER_FETCH_SUCCESS"; payload: Prisma.Order }
+  | { type: "ORDER_FETCH_FAIL"; payload: string }
   | { type: "PAY_REQUEST"; payload: null }
   | { type: "PAY_SUCCESS"; payload: Prisma.Order }
   | { type: "PAY_FAIL"; payload: string }
@@ -20,7 +20,24 @@ export type Action =
   | { type: "DELIVER_REQUEST"; payload: string }
   | { type: "DELIVER_SUCCESS"; payload: Prisma.Order }
   | { type: "DELIVER_FAIL"; payload: string }
-  | { type: "DELIVER_RESET"; payload: null };
+  | { type: "DELIVER_RESET"; payload: null }
+  | { type: "USER_FETCH_REQUEST"; payload: null }
+  | { type: "USER_FETCH_SUCCESS"; payload: null }
+  | { type: "USER_FETCH_FAIL"; payload: null }
+  | { type: "USER_DELETE_REQUEST"; payload: null }
+  | { type: "USER_DELETE_SUCCESS"; payload: null }
+  | { type: "USER_DELETE_FAIL"; payload: null }
+  | { type: "USER_DELETE_RESET"; payload: null }
+  | { type: "USER_UPDATE_REQUEST"; payload: null }
+  | { type: "USER_UPDATE_SUCCESS"; payload: null }
+  | { type: "USER_UPDATE_FAIL"; payload: null }
+  | { type: "USER_UPDATE_RESET"; payload: null }
+  | { type: "ORDERS_FETCH_REQUEST"; payload: null }
+  | { type: "ORDERS_FETCH_SUCCESS"; payload: null }
+  | { type: "ORDERS_FETCH_FAIL"; payload: null }
+  | { type: "SUMMARY_FETCH_REQUEST"; payload: null }
+  | { type: "SUMMARY_FETCH_SUCCESS"; payload: null }
+  | { type: "SUMMARY_FETCH_FAIL"; payload: null };
 
 export type State = {
   readonly cart: cart;
@@ -32,6 +49,13 @@ export type State = {
   readonly successPay: string | null;
   readonly loadingDeliver: string | null;
   readonly successDeliver: string | null;
+  readonly users: Array<Prisma.User> | null;
+  readonly successDelete: string | null;
+  readonly loadingDelete: string | null;
+  readonly successUpdate: string | null;
+  readonly loadingUpdate: string | null;
+  readonly orders: Array<Prisma.Order> | null;
+  readonly summary: summary | null;
 };
 
 export interface cart {
@@ -67,4 +91,11 @@ export interface Location {
   name: string | null;
   vicinity: string | null;
   googleAddressId: string | null;
+}
+export interface summary {
+  ordersCount: number | null;
+  productsCount: number | null;
+  usersCount: number | null;
+  ordersPrice: number | null;
+  salesData: [];
 }
