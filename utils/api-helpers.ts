@@ -34,13 +34,36 @@ export async function fetchGetJSON(url: string) {
   }
   const fetchOrder = async (orderId:number,token:string, cartDispatch:any) => {
     try {
-      cartDispatch({ type: "FETCH_REQUEST", payload: null });
+      cartDispatch({ type: "ORDER_FETCH_REQUEST", payload: null });
       const { data } = await axios.get(`/api/orders/${orderId}`, {
         headers: { authorization: `Bearer ${token}` },
       });
-      cartDispatch({ type: "FETCH_SUCCESS", payload: data });
+      cartDispatch({ type: "ORDER_FETCH_SUCCESS", payload: data });
     } catch (err) {
-      cartDispatch({ type: "FETCH_FAIL", payload: getError(err) });
+      cartDispatch({ type: "ORDER_FETCH_FAIL", payload: getError(err) });
     }
   };
-  export  {fetchOrder};
+  const fetchOrders = async (token:string, cartDispatch:any) => {
+    try {
+      cartDispatch({ type: "ORDERS_FETCH_REQUEST", payload: null });
+      const { data } = await axios.get(`/api/orders`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      cartDispatch({ type: "ORDERS_FETCH_SUCCESS", payload: data });
+    } catch (err) {
+      cartDispatch({ type: "ORDERS_FETCH_FAIL", payload: getError(err) });
+    }
+  };
+
+  const fetchSummaryData = async (token:string, cartDispatch:any) => {
+    try {
+      cartDispatch({ type: 'SUMMARY_FETCH_REQUEST' });
+      const { data } = await axios.get(`/api/admin/summary`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      cartDispatch({ type: 'SUMMARY_FETCH_SUCCESS', payload: data });
+    } catch (err) {
+      cartDispatch({ type: 'SUMMARY_FETCH_FAIL', payload: getError(err) });
+    }
+  };
+  export  {fetchOrder,fetchOrders,fetchSummaryData};

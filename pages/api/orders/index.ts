@@ -9,6 +9,18 @@ const handler = nc({
   onError,
 });
 handler.use(isAuth);
+
+handler.get(async (req:NextApiRequest, res:NextApiResponse) => {
+  const orders = await prisma.order.findMany({
+    include: {
+      orderItems: true,
+      user: true,
+      shippingAddress:true
+    },
+  });
+  res.send(orders);
+});
+
 handler.post(async (req:NextApiRequest, res:NextApiResponse) => {
   const newOrder = {
     ...req.body,
