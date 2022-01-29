@@ -18,11 +18,9 @@ CREATE TABLE "Product" (
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "imageUrl" TEXT NOT NULL,
-    "isFeatured" BOOLEAN NOT NULL,
-    "featuredImage" TEXT NOT NULL,
     "price" REAL NOT NULL,
     "brand" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
     "rating" REAL NOT NULL,
     "numReviews" INTEGER NOT NULL,
     "countInStock" INTEGER NOT NULL,
@@ -30,6 +28,15 @@ CREATE TABLE "Product" (
     "productCategoryId" INTEGER DEFAULT 1,
     CONSTRAINT "Product_productTypeId_fkey" FOREIGN KEY ("productTypeId") REFERENCES "ProductType" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Product_productCategoryId_fkey" FOREIGN KEY ("productCategoryId") REFERENCES "ProductCategory" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ProductImage" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "url" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL,
+    "productId" INTEGER,
+    CONSTRAINT "ProductImage_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -85,6 +92,7 @@ CREATE TABLE "Order" (
     "totalPrice" DECIMAL NOT NULL,
     "isPaid" BOOLEAN DEFAULT false,
     "isDelivered" BOOLEAN DEFAULT false,
+    "createdAt" DATETIME,
     "paidAt" DATETIME,
     "deliveredAt" DATETIME,
     "userId" INTEGER NOT NULL,

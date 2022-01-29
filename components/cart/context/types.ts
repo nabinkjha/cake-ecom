@@ -13,6 +13,9 @@ export type Action =
   | { type: "ORDER_FETCH_REQUEST"; payload: null }
   | { type: "ORDER_FETCH_SUCCESS"; payload: Prisma.Order }
   | { type: "ORDER_FETCH_FAIL"; payload: string }
+  | { type: "ORDERS_FETCH_REQUEST"; payload: null }
+  | { type: "ORDERS_FETCH_SUCCESS"; payload: Prisma.Order }
+  | { type: "ORDERS_FETCH_FAIL"; payload: string }
   | { type: "PAY_REQUEST"; payload: null }
   | { type: "PAY_SUCCESS"; payload: Prisma.Order }
   | { type: "PAY_FAIL"; payload: string }
@@ -37,7 +40,27 @@ export type Action =
   | { type: "ORDERS_FETCH_FAIL"; payload: null }
   | { type: "SUMMARY_FETCH_REQUEST"; payload: null }
   | { type: "SUMMARY_FETCH_SUCCESS"; payload: null }
-  | { type: "SUMMARY_FETCH_FAIL"; payload: null };
+  | { type: "SUMMARY_FETCH_FAIL"; payload: null }
+  | { type: "PRODUCTS_FETCH_FAIL"; payload: null }
+  | { type: "PRODUCTS_FETCH_REQUEST"; payload: null }
+  | { type: "PRODUCTS_FETCH_SUCCESS"; payload: Array<Prisma.Product> }
+  | { type: "PRODUCT_FETCH_FAIL"; payload: null }
+  | { type: "PRODUCT_FETCH_REQUEST"; payload: null }
+  | { type: "PRODUCT_FETCH_SUCCESS"; payload: Prisma.Product }
+  | { type: "PRODUCT_CREATE_REQUEST"; payload: null }
+  | { type: "PRODUCT_CREATE_SUCCESS"; payload: null }
+  | { type: "PRODUCT_CREATE_FAIL"; payload: null }
+  | { type: "PRODUCT_DELETE_REQUEST"; payload: null }
+  | { type: "PRODUCT_DELETE_SUCCESS"; payload: null }
+  | { type: "PRODUCT_DELETE_FAIL"; payload: null }
+  | { type: "PRODUCT_DELETE_RESET"; payload: null }
+  | { type: "PRODUCT_UPDATE_REQUEST"; payload: null }
+  | { type: "PRODUCT_UPDATE_SUCCESS"; payload: null }
+  | { type: "PRODUCT_UPDATE_FAIL"; payload: string|null }
+  | { type: "PRODUCT_IMAGE_UPLOAD_REQUEST"; payload: null }
+  | { type: "PRODUCT_IMAGE_UPLOAD_SUCCESS"; payload: null }
+  | { type: "PRODUCT_IMAGE_UPLOAD_FAIL"; payload: string|null }
+  ;
 
 export type State = {
   readonly cart: cart;
@@ -50,12 +73,23 @@ export type State = {
   readonly loadingDeliver: string | null;
   readonly successDeliver: string | null;
   readonly users: Array<Prisma.User> | null;
-  readonly successDelete: string | null;
-  readonly loadingDelete: string | null;
+
+  readonly successCreate: string | null;
   readonly successUpdate: string | null;
+  readonly successDelete: string | null;
+
+  readonly loadingCreate: string | null;
   readonly loadingUpdate: string | null;
+  readonly loadingDelete: string | null;
+
   readonly orders: Array<Prisma.Order> | null;
+  readonly product: Prisma.Product | null;
+  readonly products: Array<Prisma.Product> | null;
   readonly summary: summary | null;
+//Confirm Dailog
+  readonly message: string;
+  readonly onSubmit?: () => void;
+  readonly close: () => void;
 };
 
 export interface cart {

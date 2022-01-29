@@ -20,7 +20,7 @@ function ProductItem(product: ItemInBasket) {
   const router = useRouter();
   const { cartState, cartDispatch } = useCart();
   const addToCartHandler = async (product: ItemInBasket) => {
-    const existItem = cartState.cartitems.find((x) => x.id === product.id);
+    const existItem = cartState.cart.cartItems.find((x) => x.id === product.id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product.id}`);
 
@@ -33,7 +33,6 @@ function ProductItem(product: ItemInBasket) {
   };
 
   return (
-    <div>
       <Card>
         <NextLink href={`/product/${product.slug}`} passHref>
           <CardActionArea>
@@ -60,8 +59,7 @@ function ProductItem(product: ItemInBasket) {
           </Button>
         </CardActions>
       </Card>
-    </div>
   );
 }
 
-//export default dynamic(() => Promise.resolve(ProductItem), { ssr: false });
+export default dynamic(() => Promise.resolve(ProductItem), { ssr: false });
