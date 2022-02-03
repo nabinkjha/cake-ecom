@@ -26,6 +26,7 @@ const PaymentPage = () => {
   const {
     cart: { shippingAddress,paymentMethod },
   } = cartState;
+  const [payMethod, setPayMethod] = useState(paymentMethod);
   useEffect(() => {
     if (!shippingAddress.address) {
       router.push('/shipping');
@@ -34,10 +35,10 @@ const PaymentPage = () => {
   const submitHandler = (e) => {
     closeSnackbar();
     e.preventDefault();
-    if (!paymentMethod) {
+    if (!payMethod) {
       enqueueSnackbar('Payment method is required', { variant: 'error' });
     } else {
-      cartDispatch({ type: 'SAVE_PAYMENT_METHOD', payload: paymentMethod });
+      cartDispatch({ type: 'SAVE_PAYMENT_METHOD', payload: payMethod });
       router.push('/placeorder');
     }
   };
@@ -54,8 +55,8 @@ const PaymentPage = () => {
               <RadioGroup
                 aria-label="Payment Method"
                 name="paymentMethod"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                value={payMethod}
+                onChange={(e) => setPayMethod(e.target.value)}
               >
                 <FormControlLabel
                   label="PayPal"

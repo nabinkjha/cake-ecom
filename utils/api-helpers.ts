@@ -66,4 +66,12 @@ export async function fetchGetJSON(url: string) {
       cartDispatch({ type: 'SUMMARY_FETCH_FAIL', payload: getError(err) });
     }
   };
-  export  {fetchOrder,fetchOrders,fetchSummaryData};
+  const fetchCategories = async () => {
+    try {
+      const { data } = await axios.get(`/api/product-category`);
+     return data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+  };
+  export  {fetchCategories,fetchOrder,fetchOrders,fetchSummaryData};

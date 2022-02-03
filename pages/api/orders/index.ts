@@ -42,6 +42,7 @@ try {
         shippingPrice: newOrder.shippingPrice,
         taxPrice:  newOrder.taxPrice,
         totalPrice:  newOrder.totalPrice,
+        createdAt:  new Date(Date.now()),
         user:{connect:{
             id:req.user.id
         }},
@@ -54,6 +55,7 @@ try {
     }
 }).catch((e) => {
       console.log(e);
+      throw e;
     })
     .finally(() => {
       prisma.$disconnect();

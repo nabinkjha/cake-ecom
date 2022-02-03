@@ -23,13 +23,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { getError } from '@/utils/error';
 import Layout from '@/components/Layout';
 import { GetServerSideProps } from 'next';
+import AdminSideMenu from '@/components/AdminSideMenu';
 
 function UserEdit({ params }) {
   const userId = params.id;
   const router = useRouter();
   const { cartState, cartDispatch } = useCart();
   const classes = useStyles();
-  const { loading, error, users, successUpdate, loadingUpdate, userInfo} = cartState;
+  const { loading, error,loadingUpdate, userInfo} = cartState;
   const {
     handleSubmit,
     control,
@@ -45,15 +46,15 @@ function UserEdit({ params }) {
     } else {
       const fetchData = async () => {
         try {
-          cartDispatch({ type: 'FETCH_REQUEST' });
+          cartDispatch({ type: 'USER_FETCH_REQUEST',payload:null });
           const { data } = await axios.get(`/api/admin/users/${userId}`, {
             headers: { authorization: `Bearer ${userInfo.token}` },
           });
           setIsAdmin(data.isAdmin);
-          cartDispatch({ type: 'FETCH_SUCCESS' });
+          cartDispatch({ type: 'USER_FETCH_SUCCESS',payload:data });
           setValue('name', data.name);
         } catch (err) {
-          cartDispatch({ type: 'FETCH_FAIL', payload: getError(err) });
+          cartDispatch({ type: 'USER_FETCH_FAIL', payload: getError(err) });
         }
       };
       fetchData();
@@ -63,8 +64,8 @@ function UserEdit({ params }) {
   const submitHandler = async ({ name }:{name:string}) => {
     closeSnackbar();
     try {
-      cartDispatch({ type: 'USER_UPDATE_REQUEST' });
-      await axios.put(
+      cartDispatch({ type: 'USER_UPDATE_REQUEST',payload:null });
+      const {data} = await axios.put(
         `/api/admin/users/${userId}`,
         {
           name,
@@ -72,7 +73,7 @@ function UserEdit({ params }) {
         },
         { headers: { authorization: `Bearer ${userInfo.token}` } }
       );
-      cartDispatch({ type: 'USER_UPDATE_SUCCESS' });
+      cartDispatch({ type: 'USER_UPDATE_SUCCESS' ,payload:data});
       enqueueSnackbar('User updated successfully', { variant: 'success' });
       router.push('/admin/users');
     } catch (err) {
@@ -84,30 +85,7 @@ function UserEdit({ params }) {
     <Layout title={`Edit User ${userId}`}>
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
-            <List>
-              <NextLink href="/admin/dashboard" passHref>
-                <ListItem button component="a">
-                  <ListItemText primary="Admin Dashboard"></ListItemText>
-                </ListItem>
-              </NextLink>
-              <NextLink href="/admin/orders" passHref>
-                <ListItem button component="a">
-                  <ListItemText primary="Orders"></ListItemText>
-                </ListItem>
-              </NextLink>
-              <NextLink href="/admin/products" passHref>
-                <ListItem button component="a">
-                  <ListItemText primary="Products"></ListItemText>
-                </ListItem>
-              </NextLink>
-              <NextLink href="/admin/users" passHref>
-                <ListItem selected button component="a">
-                  <ListItemText primary="Users"></ListItemText>
-                </ListItem>
-              </NextLink>
-            </List>
-          </Card>
+          <AdminSideMenu></AdminSideMenu>
         </Grid>
         <Grid item md={9} xs={12}>
           <Card className={classes.section}>

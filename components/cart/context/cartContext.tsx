@@ -1,15 +1,12 @@
 import {
-  ReactNode,
   createContext,
   useReducer,
-  useContext,
   useMemo,
-  useState,
 } from "react";
 import { cartReducer } from "./reducers/cartReducer";
 import type { Action, cart, State } from "./types";
 import Cookies from "js-cookie";
-import { User } from "@prisma/client";
+import {  User } from "@prisma/client";
 
 type Dispatch = (action: Action) => void;
 type CartProviderProps = { readonly children: React.ReactNode };
@@ -48,6 +45,7 @@ const order={
     taxPrice:null,
     shippingPrice:null,
     totalPrice:null,
+    createdAt:null,
     isPaid:false,
     paidAt:null,
     isDelivered:false,
@@ -60,7 +58,21 @@ const summary ={
   ordersPrice: 0,
   salesData: []
 }
-
+const product ={
+  id:0,
+  name: "",
+  slug: "",
+  description: "",
+  imageUrl: "",
+  isFeatured: false,
+  featuredImage: "",
+  price: null,
+  brand: "",
+  rating: 0,
+  numReviews: 0,
+  countInStock: 0,
+  productCategory:  {},
+};
 const initialState: State = {
   cart: cartcookie,
   order:order,
@@ -69,15 +81,21 @@ const initialState: State = {
   loading: true,
   error: "",
   successPay: "",
-  loadingDeliver: "",
-  successDeliver: "",
+  loadingDeliver: false,
+  successDeliver:false,
   users:[],
-  successDelete:"",
-  loadingDelete:"",
-  successUpdate:"",
-  loadingUpdate:"",
+  successDelete:false,
+  loadingDelete:false,
+  successUpdate:false,
+  loadingUpdate:false,
   orders:[],
-  summary:summary
+  summary:summary,
+  product:product,
+  products:[],
+
+  message: '',
+  onSubmit: undefined,
+  close: () => { onSubmit: undefined },
 };
 
 export function CartProvider({ children }: CartProviderProps) {

@@ -76,6 +76,12 @@ export const cartReducer = (state: State, action: Action) => {
       return { ...state, loading: false, order: action.payload, error: "" };
     case "ORDER_FETCH_FAIL":
       return { ...state, loading: false, error: action.payload };
+    case "ORDERS_FETCH_REQUEST":
+      return { ...state, loading: true, error: "" };
+    case "ORDERS_FETCH_SUCCESS":
+      return { ...state, loading: false, orders: action.payload, error: "" };
+    case "ORDERS_FETCH_FAIL":
+      return { ...state, loading: false, error: action.payload };
     case "PAY_REQUEST":
       return { ...state, loadingPay: true };
     case "PAY_SUCCESS":
@@ -134,6 +140,49 @@ export const cartReducer = (state: State, action: Action) => {
       return { ...state, loading: false, summary: action.payload, error: "" };
     case "SUMMARY_FETCH_FAIL":
       return { ...state, loading: false, error: action.payload };
+    case "PRODUCTS_FETCH_REQUEST":
+      return { ...state, loading: true, error: "" };
+    case "PRODUCTS_FETCH_SUCCESS":
+      return { ...state, loading: false, products: action.payload, error: "" };
+    case "PRODUCTS_FETCH_FAIL":
+      return { ...state, loading: false, error: action.payload };
+    case "PRODUCT_FETCH_REQUEST":
+      return { ...state, loading: true, error: "" };
+    case "PRODUCT_FETCH_SUCCESS":
+      return { ...state, loading: false, product: action.payload, error: "" };
+    case "PRODUCT_FETCH_FAIL":
+      return { ...state, loading: false, error: action.payload };
+    case "PRODUCT_CREATE_REQUEST":
+      return { ...state, loadingCreate: true };
+    case "PRODUCT_CREATE_SUCCESS":
+      return { ...state, loadingCreate: false };
+    case "PRODUCT_CREATE_FAIL":
+      return { ...state, loadingCreate: false };
+    case "PRODUCT_DELETE_REQUEST":
+      return { ...state, loadingDelete: true };
+    case "PRODUCT_DELETE_SUCCESS":
+      return { ...state, loadingDelete: false, successDelete: true };
+    case "PRODUCT_DELETE_FAIL":
+      return { ...state, loadingDelete: false };
+    case "PRODUCT_DELETE_RESET":
+      return { ...state, loadingDelete: false, successDelete: false };
+    case "PRODUCT_UPDATE_REQUEST":
+      return { ...state, loadingUpdate: true, errorUpdate: "" };
+    case "PRODUCT_UPDATE_SUCCESS":
+      console.log('PRODUCT_UPDATE_SUCCESS');
+      return { ...state, loadingUpdate: false, errorUpdate: "" };
+    case "PRODUCT_UPDATE_FAIL":
+      return { ...state, loadingUpdate: false, errorUpdate: action.payload };
+    case "PRODUCT_IMAGE_UPLOAD_REQUEST":
+      return { ...state, loadingUpload: true, errorUpload: "" };
+    case "PRODUCT_IMAGE_UPLOAD_SUCCESS":
+      return {
+        ...state,
+        loadingUpload: false,
+        errorUpload: "",
+      };
+    case "PRODUCT_IMAGE_UPLOAD_FAIL":
+      return { ...state, loadingUpload: false, errorUpload: action.payload };
     default: {
       return state;
     }

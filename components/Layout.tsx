@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useState } from 'react';
 import {
@@ -24,17 +24,20 @@ import {
   Badge,
 } from "@mui/material";
 import Copyright from "./Copyright";
-import ThemeReducer from "./cart/context/reducers/ThemeReducer";
 import useStyles from "../utils/style";
 import NextLink from "next/link";
 import { Box } from '@mui/system';
 import MenuIcon from '@mui/icons-material/Menu';
 import CancelIcon from '@mui/icons-material/Cancel';
-
+import SearchIcon from '@mui/icons-material/Search';
 import Head from 'next/head';
 import { useCart } from './cart/hooks/useCart';
 import Cookies from "js-cookie";
 import { useRouter } from 'next/router';
+import { useSnackbar } from 'notistack';
+import axios from 'axios';
+import { getError } from '@/utils/error';
+import { fetchCategories } from '@/utils/api-helpers';
 
 export default function Layout({
   title,
@@ -75,6 +78,19 @@ export default function Layout({
       },
     },
   });
+  const [categories, setCategories] = useState([]);
+  const [query, setQuery] = useState('');
+  const queryChangeHandler = (e) => {
+    setQuery(e.target.value);
+  };
+  const submitHandler = (e) => {
+    e.preventDefault();
+    router.push(`/search?query=${query}`);
+  };
+
+  useEffect(() => {
+    fetchCategories().then(data=> {setCategories(data)});
+  }, []);
 
   
   const sidebarOpenHandler = () => {
@@ -154,10 +170,10 @@ export default function Layout({
                 </Box>
               </ListItem>
               <Divider light />
-              {/* {categories.map((category) => (
+              {categories.map((category) => (
                 <NextLink
-                  key={category}
-                  href={`/search?category=${category}`}
+                  key={category.id}
+                  href={`/search?category=${category.name}`}
                   passHref
                 >
                   <ListItem
@@ -165,15 +181,15 @@ export default function Layout({
                     component="a"
                     onClick={sidebarCloseHandler}
                   >
-                    <ListItemText primary={category}></ListItemText>
+                    <ListItemText primary={category.name}></ListItemText>
                   </ListItem>
                 </NextLink>
-              ))} */}
+              ))}
             </List>
           </Drawer>
 
           <div className={classes.searchSection}>
-            {/* <form onSubmit={submitHandler} className={classes.searchForm}>
+            <form onSubmit={submitHandler} className={classes.searchForm}>
               <InputBase
                 name="query"
                 className={classes.searchInput}
@@ -187,7 +203,7 @@ export default function Layout({
               >
                 <SearchIcon />
               </IconButton>
-            </form> */}
+            </form>
           </div>
           <div>
             <Switch
