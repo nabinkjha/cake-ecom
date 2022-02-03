@@ -70,17 +70,17 @@ export type State = {
   readonly loading: boolean | true;
   readonly error: string | null;
   readonly successPay: string | null;
-  readonly loadingDeliver: string | null;
-  readonly successDeliver: string | null;
+  readonly loadingDeliver: boolean | null;
+  readonly successDeliver: boolean | null;
   readonly users: Array<Prisma.User> | null;
 
-  readonly successCreate: string | null;
-  readonly successUpdate: string | null;
-  readonly successDelete: string | null;
+  readonly successCreate: boolean | null;
+  readonly successUpdate: boolean | null;
+  readonly successDelete: boolean | null;
 
-  readonly loadingCreate: string | null;
-  readonly loadingUpdate: string | null;
-  readonly loadingDelete: string | null;
+  readonly loadingCreate: boolean | null;
+  readonly loadingUpdate: boolean | null;
+  readonly loadingDelete: boolean | null;
 
   readonly orders: Array<Prisma.Order> | null;
   readonly product: Prisma.Product | null;

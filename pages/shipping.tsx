@@ -46,27 +46,6 @@ const ShippingPage = () => {
       });
       router.push('/payment');
     };
-  
-    const chooseLocationHandler = () => {
-      const fullName = getValues('fullName') as string;
-      const address = getValues('address')as string;
-      const city = getValues('city')as string;
-      const postalCode = getValues('postalCode')as string;
-      const country = getValues('country')as string;
-      cartDispatch({
-        type: 'SAVE_SHIPPING_ADDRESS',
-        payload: { fullName, address, city, postalCode, country ,location:{}},
-      });
-      Cookies.set('shippingAddress', {
-        fullName,
-        address,
-        city,
-        postalCode,
-        country,
-        location,
-      });
-      router.push('/map');
-    };
     return (
       <Layout title="Shipping Address">
         <CheckoutWizard activeStep={1} />
@@ -214,18 +193,6 @@ const ShippingPage = () => {
                   ></TextField>
                 )}
               ></Controller>
-            </ListItem>
-            <ListItem>
-              <Button
-                variant="contained"
-                type="button"
-                onClick={chooseLocationHandler}
-              >
-                Choose on map
-              </Button>
-              <Typography>
-                {location.lat && `${location.lat}, ${location.lat}`}
-              </Typography>
             </ListItem>
             <ListItem>
               <Button variant="contained" type="submit" fullWidth color="primary">

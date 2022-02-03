@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import CancelIcon from "@material-ui/icons/Cancel";
 import { useRouter } from "next/router";
-import React, { useContext } from "react";
+import React from "react";
 import Layout from "@/components/Layout";
 import useStyles from "../utils/style";
 import axios from "axios";
@@ -23,6 +23,9 @@ import Rating from "@material-ui/lab/Rating";
 import { Pagination } from "@material-ui/lab";
 import { PrismaClient } from "@prisma/client";
 import NextLink from "next/link";
+import { useCart } from "@/components/cart/hooks/useCart";
+import { useSnackbar } from "notistack";
+import { ItemInBasket } from "@/components/cart/context/types";
 const PAGE_SIZE = 3;
 
 const prices = [
@@ -45,6 +48,8 @@ const ratings = [1, 2, 3, 4, 5];
 export default function Search(props) {
   const classes = useStyles();
   const router = useRouter();
+  const { cartState, cartDispatch } = useCart();
+  const { enqueueSnackbar } = useSnackbar();
   const {
     query = "all",
     category = "all",
@@ -53,7 +58,7 @@ export default function Search(props) {
     rating = "all",
     sort = "lowest",
   } = router.query;
-  const { products, countProducts, categories,  pages } = props;
+  const { products, countProducts, categories, pages } = props;
 
   const filterSearch = ({
     page,
@@ -109,15 +114,16 @@ export default function Search(props) {
     filterSearch({ rating: e.target.value });
   };
 
-  const addToCartHandler = async (product) => {
-    const existItem = state.cart.cartItems.find((x) => x.id === product.id);
+  const addToCartHandler = async (product:ItemInBasket) => {
+   
+    const existItem = cartState.cart.cartItems.find((x) => x.id === product.id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
-    const { data } = await axios.get(`/api/products/${product._id}`);
+    const { data } = await axios.get(`/api/products/${product.id}`);
     if (data.countInStock < quantity) {
-      window.alert("Sorry. Product is out of stock");
+      enqueueSnackbar("Sorry. Product is out of stock", { variant: "error" });
       return;
     }
-    dispatch({ type: "CART_ADD_ITEM", payload: { ...product, quantity } });
+    cartDispatch({ type: "CART_ADD_ITEM", payload: { ...product, quantity } });
     router.push("/cart");
   };
   return (
@@ -168,7 +174,7 @@ export default function Search(props) {
             </ListItem>
           </List>
         </Grid>
-       <Grid item md={9}>
+        <Grid item md={9}>
           <Grid container justifyContent="space-between" alignItems="center">
             <Grid item>
               {products.length === 0 ? "No" : countProducts} Results
@@ -198,40 +204,35 @@ export default function Search(props) {
               </Select>
             </Grid>
           </Grid>
-           <Grid className={classes.mt1} container spacing={3}>
+          <Grid className={classes.mt1} container spacing={3}>
             {products.map((product) => (
               <Grid item md={4} key={product.name}>
-                {/* <ProductItem
-                  product={product}
-                  addToCartHandler={addToCartHandler}
-                /> */}
-                
-            <Card>
-              <NextLink href={`/product/${product.slug}`} passHref>
-                <CardActionArea>
-                  <CardMedia
-                    component="img"
-                    height="300"
-                    image={product.imageUrl}
-                    title={product.name}
-                  ></CardMedia>
-                  <CardContent>
-                    <Typography>{product.name}</Typography>
-                    <Rating value={product.rating} readOnly></Rating>
-                  </CardContent>
-                </CardActionArea>
-              </NextLink>
-              <CardActions>
-                <Typography>Rs.{product.price}</Typography>
-                <Button
-                  size="small"
-                  color="primary"
-                  onClick={() => addToCartHandler(product)}
-                >
-                  Add to cart
-                </Button>
-              </CardActions>
-            </Card>
+                <Card>
+                  <NextLink href={`/product/${product.slug}`} passHref>
+                    <CardActionArea>
+                      <CardMedia
+                        component="img"
+                        height="300"
+                        image={product.imageUrl}
+                        title={product.name}
+                      ></CardMedia>
+                      <CardContent>
+                        <Typography>{product.name}</Typography>
+                        <Rating value={product.rating} readOnly></Rating>
+                      </CardContent>
+                    </CardActionArea>
+                  </NextLink>
+                  <CardActions>
+                    <Typography>Rs.{product.price}</Typography>
+                    <Button
+                      size="small"
+                      color="primary"
+                      onClick={() => addToCartHandler(product)}
+                    >
+                      Add to cart
+                    </Button>
+                  </CardActions>
+                </Card>
               </Grid>
             ))}
           </Grid>
@@ -242,8 +243,7 @@ export default function Search(props) {
             onChange={pageHandler}
           ></Pagination>
         </Grid>
-      </Grid> 
-     
+      </Grid>
     </Layout>
   );
 }
@@ -257,24 +257,29 @@ export async function getServerSideProps({ query }) {
   const rating = query.rating || "";
   const sort = query.sort || "";
   const searchQuery = query.query || "";
-  const createQuery =[];
+  const createQuery = [];
 
   const queryFilter =
     searchQuery && searchQuery !== "all"
       ? {
           name: {
-            contains: searchQuery
+            contains: searchQuery,
           },
         }
       : null;
-      if(queryFilter !==null){
-        createQuery.push(queryFilter);
-      }
+  if (queryFilter !== null) {
+    createQuery.push(queryFilter);
+  }
 
-  const categoryFilter = category && category !== "all" ? {     productCategory: {
-    name: category,
-  }, } : null;
-  if(categoryFilter !==null){
+  const categoryFilter =
+    category && category !== "all"
+      ? {
+          productCategory: {
+            name: category,
+          },
+        }
+      : null;
+  if (categoryFilter !== null) {
     createQuery.push(categoryFilter);
   }
   const ratingFilter =
@@ -284,11 +289,11 @@ export async function getServerSideProps({ query }) {
             gte: Number(rating),
           },
         }
-      :null;
-      if(ratingFilter !==null){
-        createQuery.push(ratingFilter);
-      }
-   
+      : null;
+  if (ratingFilter !== null) {
+    createQuery.push(ratingFilter);
+  }
+
   // 10-50
   const priceFilter =
     price && price !== "all"
@@ -299,32 +304,32 @@ export async function getServerSideProps({ query }) {
           },
         }
       : null;
-      if(priceFilter !==null){
-        createQuery.push(priceFilter);
-      }
-if(createQuery.length === 0){
-  createQuery.push({});
-}
+  if (priceFilter !== null) {
+    createQuery.push(priceFilter);
+  }
+  if (createQuery.length === 0) {
+    createQuery.push({});
+  }
   const order =
-   sort === "lowest"
-      ? { price: 'asc' }
+    sort === "lowest"
+      ? { price: "asc" }
       : sort === "highest"
-      ? { price: 'desc' }
+      ? { price: "desc" }
       : sort === "toprated"
-      ? { rating: 'desc' }
+      ? { rating: "desc" }
       : sort === "newest"
       ? { id: "desc" }
-      : { id:"asc" };
+      : { id: "asc" };
 
   const categoryPromise = prisma.productCategory.findMany({});
   const countProductPromise = prisma.product.count({
     where: {
-      AND:createQuery
+      AND: createQuery,
     },
   });
   const productPromise = prisma.product.findMany({
     where: {
-     AND:createQuery,
+      AND: createQuery,
     },
     orderBy: [order],
     skip: (page - 1) * pageSize,

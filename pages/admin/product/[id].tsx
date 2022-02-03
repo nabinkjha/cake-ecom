@@ -28,7 +28,7 @@ function ProductEdit({ params }) {
   const productId = params.id;
   const { cartState, cartDispatch } = useCart();
   const router = useRouter();
-  const { loading, error, loadingUpdate, loadingUpload, product, userInfo } =
+  const { loading, error, loadingUpdate, loadingUpload, userInfo } =
     cartState;
   const {
     handleSubmit,
@@ -38,7 +38,7 @@ function ProductEdit({ params }) {
   } = useForm();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const classes = useStyles();
-  const [isFeatured, setIsFeatured] = useState(false);
+
   useEffect(() => {
     if (!userInfo) {
       return router.push("/login");
@@ -50,17 +50,12 @@ function ProductEdit({ params }) {
             headers: { authorization: `Bearer ${userInfo.token}` },
           });
           cartDispatch({ type: "PRODUCT_FETCH_SUCCESS", payload: data });
-
-          if (product) {
-            setValue("name", data.name);
-            setIsFeatured(product.isFeatured);
-
-            setValue("slug", product.slug);
-            setValue("price", product.price);
-            setValue("imageUrl", product.imageUrl);
-            setValue("countInStock", product.countInStock);
-            setValue("description", product.description);
-          }
+          setValue("name", data.name);
+          setValue("slug", data.slug);
+          setValue("price", data.price);
+          setValue("imageUrl", data.imageUrl);
+          setValue("countInStock", data.countInStock);
+          setValue("description", data.description);
         } catch (err) {
           cartDispatch({ type: "PRODUCT_FETCH_FAIL", payload: getError(err) });
         }
@@ -69,12 +64,12 @@ function ProductEdit({ params }) {
     }
   }, [productId]);
 
-  const uploadHandler = async (e, imageField = "image") => {
+  const uploadImageHandler = async (e, imageField = "imageUrl") => {
     const file = e.target.files[0];
     const bodyFormData = new FormData();
     bodyFormData.append("file", file);
     try {
-      cartDispatch({ type: "PRODUCT_UPLOAD_REQUEST" });
+      cartDispatch({ type: "PRODUCT_IMAGE_UPLOAD_REQUEST", payload: null });
       const { data } = await axios.post("/api/admin/upload", bodyFormData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -98,9 +93,7 @@ function ProductEdit({ params }) {
     slug,
     price,
     category,
-    image,
-    featuredImage,
-    brand,
+    imageUrl,
     countInStock,
     description,
   }: {
@@ -108,10 +101,8 @@ function ProductEdit({ params }) {
     slug: string;
     price: number;
     category: string;
-    image: string;
-    featuredImage: string;
-    brand: string;
-    countInStock: string;
+    imageUrl: string;
+    countInStock: number;
     description: string;
   }) => {
     const data = {
@@ -119,34 +110,29 @@ function ProductEdit({ params }) {
       slug,
       price,
       category,
-      image,
-      isFeatured,
-      featuredImage,
-      brand,
-      countInStock,
+      imageUrl,
+      countInStock:+countInStock,
       description,
     };
     closeSnackbar();
-    console.log("Product form submitted");
     try {
       cartDispatch({ type: "PRODUCT_UPDATE_REQUEST" });
       if (productId > 0) {
+        console.log("calling PUT")
         await axios.put(`/api/admin/products/${productId}`, data, {
           headers: { authorization: `Bearer ${userInfo?.token}` },
         });
+        console.log("calling dispatch")
+        cartDispatch({ type: "PRODUCT_UPDATE_SUCCESS" });
+        console.log(" dispatch done")
       } else {
-        console.log();
         await axios.post("/api/admin/products", data, {
           headers: { authorization: `Bearer ${userInfo?.token}` },
         });
+        cartDispatch({ type: "PRODUCT_CREATE_SUCCESS" });
       }
-
-      cartDispatch({ type: "PRODUCT_UPDATE_SUCCESS" });
-      if (productId > 0) {
-        enqueueSnackbar("Product updated successfully", { variant: "success" });
-      } else {
-        enqueueSnackbar("Product created successfully", { variant: "success" });
-      }
+      const successMessage = productId > 0?"Product updated successfully":"Product created successfully";
+      enqueueSnackbar(successMessage, { variant: "success" });
       router.push("/admin/products");
     } catch (err) {
       cartDispatch({ type: "PRODUCT_UPDATE_FAIL", payload: getError(err) });
@@ -271,78 +257,9 @@ function ProductEdit({ params }) {
                     <ListItem>
                       <Button variant="contained" component="label">
                         Upload File
-                        <input type="file" onChange={uploadHandler} hidden />
+                        <input type="file" onChange={uploadImageHandler} hidden />
                       </Button>
                       {loadingUpload && <CircularProgress />}
-                    </ListItem>
-                    <ListItem>
-                      <FormControlLabel
-                        label="Is Featured"
-                        control={
-                          <Checkbox
-                            onClick={(e) => setIsFeatured(e.target.checked)}
-                            checked={isFeatured}
-                            name="isFeatured"
-                          />
-                        }
-                      ></FormControlLabel>
-                    </ListItem>
-                    <ListItem>
-                      <Controller
-                        name="featuredImage"
-                        control={control}
-                        defaultValue=""
-                        rules={{
-                          required: true,
-                        }}
-                        render={({ field }) => (
-                          <TextField
-                            variant="outlined"
-                            fullWidth
-                            id="featuredImage"
-                            label="Featured Image"
-                            error={Boolean(errors.image)}
-                            helperText={
-                              errors.image ? "Featured Image is required" : ""
-                            }
-                            {...field}
-                          ></TextField>
-                        )}
-                      ></Controller>
-                    </ListItem>
-                    <ListItem>
-                      <Button variant="contained" component="label">
-                        Upload File
-                        <input
-                          type="file"
-                          onChange={(e) => uploadHandler(e, "featuredImage")}
-                          hidden
-                        />
-                      </Button>
-                      {loadingUpload && <CircularProgress />}
-                    </ListItem>
-                    <ListItem>
-                      <Controller
-                        name="category"
-                        control={control}
-                        defaultValue=""
-                        rules={{
-                          required: true,
-                        }}
-                        render={({ field }) => (
-                          <TextField
-                            variant="outlined"
-                            fullWidth
-                            id="category"
-                            label="Category"
-                            error={Boolean(errors.category)}
-                            helperText={
-                              errors.category ? "Category is required" : ""
-                            }
-                            {...field}
-                          ></TextField>
-                        )}
-                      ></Controller>
                     </ListItem>
                     <ListItem>
                       <Controller
@@ -359,11 +276,7 @@ function ProductEdit({ params }) {
                             id="countInStock"
                             label="Count in stock"
                             error={Boolean(errors.countInStock)}
-                            helperText={
-                              errors.countInStock
-                                ? "Count in stock is required"
-                                : ""
-                            }
+                            helperText={errors.countInStock ? "Count in stock is required" : ""}
                             {...field}
                           ></TextField>
                         )}
@@ -397,14 +310,14 @@ function ProductEdit({ params }) {
                     </ListItem>
 
                     <ListItem>
-                      <Button
+                    {!loadingUpdate && <Button
                         variant="contained"
                         type="submit"
                         fullWidth
                         color="primary"
                       >
                         {productId > 0 ? "Update" : "Create"}
-                      </Button>
+                      </Button>}
                       {loadingUpdate && <CircularProgress />}
                     </ListItem>
                   </List>

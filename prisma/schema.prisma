@@ -33,12 +33,12 @@ model Product {
   id                Int              @id @default(autoincrement())
   name              String
   slug              String           @unique
-  description       String
+  description       String?
   price             Float
-  brand             String
-  imageUrl          String // URL of the default images of the product
-  rating            Float
-  numReviews        Int
+  brand             String?
+  imageUrl          String? // URL of the default images of the product
+  rating            Float?
+  numReviews        Int?
   countInStock      Int
   productType       ProductType?     @relation("ProductHasType", fields: [productTypeId], references: [id])
   productTypeId     Int?             @default(1)

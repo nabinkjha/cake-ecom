@@ -169,6 +169,7 @@ export const cartReducer = (state: State, action: Action) => {
     case "PRODUCT_UPDATE_REQUEST":
       return { ...state, loadingUpdate: true, errorUpdate: "" };
     case "PRODUCT_UPDATE_SUCCESS":
+      console.log('PRODUCT_UPDATE_SUCCESS');
       return { ...state, loadingUpdate: false, errorUpdate: "" };
     case "PRODUCT_UPDATE_FAIL":
       return { ...state, loadingUpdate: false, errorUpdate: action.payload };

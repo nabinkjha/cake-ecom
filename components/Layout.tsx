@@ -37,6 +37,7 @@ import { useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
 import axios from 'axios';
 import { getError } from '@/utils/error';
+import { fetchCategories } from '@/utils/api-helpers';
 
 export default function Layout({
   title,
@@ -78,16 +79,6 @@ export default function Layout({
     },
   });
   const [categories, setCategories] = useState([]);
-  const { enqueueSnackbar } = useSnackbar();
-
-  const fetchCategories = async () => {
-    try {
-      const { data } = await axios.get(`/api/product-category`);
-      setCategories(data);
-    } catch (err) {
-      enqueueSnackbar(getError(err), { variant: 'error' });
-    }
-  };
   const [query, setQuery] = useState('');
   const queryChangeHandler = (e) => {
     setQuery(e.target.value);
@@ -98,7 +89,7 @@ export default function Layout({
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategories().then(data=> {setCategories(data)});
   }, []);
 
   
@@ -182,7 +173,7 @@ export default function Layout({
               {categories.map((category) => (
                 <NextLink
                   key={category.id}
-                  href={`/search?category=${category.id}`}
+                  href={`/search?category=${category.name}`}
                   passHref
                 >
                   <ListItem
