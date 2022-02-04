@@ -60,6 +60,8 @@ export type Action =
   | { type: "PRODUCT_IMAGE_UPLOAD_REQUEST"; payload: null }
   | { type: "PRODUCT_IMAGE_UPLOAD_SUCCESS"; payload: null }
   | { type: "PRODUCT_IMAGE_UPLOAD_FAIL"; payload: string|null }
+  | { type: "PRODUCT_REVIEW_UPDATED"; payload: string|null }
+  | { type: "PRODUCT_DETAIL_VIEW"; payload: string|null }
   ;
 
 export type State = {
@@ -109,6 +111,7 @@ export interface ItemInBasket {
   countInStock: number;
   price: number;
   rating: number;
+  numReviews:number;
 }
 export interface ShippingAddress {
   fullName: string | null;

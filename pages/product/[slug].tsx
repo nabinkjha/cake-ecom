@@ -3,17 +3,16 @@ import { PrismaClient, Product } from "@prisma/client";
 import { GetServerSideProps } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { ProductDetails } from "../../components/ProductDetails";
-import { ItemInBasket } from "../../components/cart/context/types";
 
 const prisma = new PrismaClient();
 
 export default function ProductScreen(props: SearchProps) {
-  const { itemInBasket } = props;
-  return (<ProductDetails key={itemInBasket?.id} {...itemInBasket} />);
+  const { productDetail } = props;
+  return (<ProductDetails key={productDetail?.id}  productDetail={productDetail}/>);
 }
 
 interface SearchProps {
-  itemInBasket: ItemInBasket;
+  product: Product;
 }
 
 interface Params extends ParsedUrlQuery {
@@ -34,10 +33,10 @@ export const getServerSideProps: GetServerSideProps<SearchProps> = async (
         reviews:true
     }
   });
-  const itemInBasket={...product,quantity : 1,category: product?.productCategory?.name};
+  const productDetail={...product,quantity : 1};
   return {
     props: {
-      itemInBasket: itemInBasket,
+      productDetail: JSON.parse(JSON.stringify(productDetail)) ,
     },
   };
 };

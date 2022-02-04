@@ -108,7 +108,6 @@ export const cartReducer = (state: State, action: Action) => {
     case "USER_FETCH_REQUEST":
       return { ...state, loading: true, error: "" };
     case "USER_FETCH_SUCCESS":
-      console.log(action.payload);
       return { ...state, loading: false, users: action.payload, error: "" };
     case "USER_FETCH_FAIL":
       return { ...state, loading: false, error: action.payload };
@@ -169,12 +168,14 @@ export const cartReducer = (state: State, action: Action) => {
     case "PRODUCT_UPDATE_REQUEST":
       return { ...state, loadingUpdate: true, errorUpdate: "" };
     case "PRODUCT_UPDATE_SUCCESS":
-      console.log('PRODUCT_UPDATE_SUCCESS');
       return { ...state, loadingUpdate: false, errorUpdate: "" };
     case "PRODUCT_UPDATE_FAIL":
       return { ...state, loadingUpdate: false, errorUpdate: action.payload };
     case "PRODUCT_IMAGE_UPLOAD_REQUEST":
       return { ...state, loadingUpload: true, errorUpload: "" };
+    case "PRODUCT_DETAIL_VIEW":
+      return { ...state,loading:false, product:action.payload};
+
     case "PRODUCT_IMAGE_UPLOAD_SUCCESS":
       return {
         ...state,
@@ -183,6 +184,9 @@ export const cartReducer = (state: State, action: Action) => {
       };
     case "PRODUCT_IMAGE_UPLOAD_FAIL":
       return { ...state, loadingUpload: false, errorUpload: action.payload };
+    case "PRODUCT_REVIEW_UPDATED":
+      return { ...state, loadingUpload: false, errorUpload: action.payload };
+    //
     default: {
       return state;
     }

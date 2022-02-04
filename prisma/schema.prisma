@@ -93,8 +93,10 @@ model User {
 
 model Review {
   id         Int             @id @default(autoincrement())
+  name       String
   content    String
   rating     Int
+  createdAt  DateTime        @default(now())
   //Review must be for a product
   product    Product         @relation("ProductReview", fields: [productId], references: [id])
   productId  Int
