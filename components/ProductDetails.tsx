@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import NextLink from "next/link";
 import Image from "next/image";
 import {
@@ -8,28 +8,32 @@ import {
   ListItem,
   Typography,
   Card,
-  Button
+  Button,
+  CircularProgress
 } from "@mui/material";
 import Rating from "@material-ui/lab/Rating";
 import Layout from "./Layout";
 import { useRouter } from "next/router";
 import { useCart } from "./cart/hooks/useCart";
 import useStyles from "../utils/style";
-import { ItemInBasket } from "./cart/context/types";
+import ProductReview from "./ProductReview";
 
-export const ProductDetails = (itemInBasket: ItemInBasket) => {
-  console.log(itemInBasket);
-  const { id, imageUrl, name, price } = itemInBasket;
-  const { cartDispatch } = useCart();
+export const ProductDetails = ({productDetail}) => {
+  const { cartState,cartDispatch } = useCart();
+  const {product,loading} =cartState;
   const classes = useStyles();
   const router = useRouter();
   const addToCart = () => {
-    cartDispatch({ type: 'ADD_CART_ITEM', payload: itemInBasket });
+    cartDispatch({ type: 'ADD_CART_ITEM', payload: product });
     router.push('/cart');
   };
-
+  useEffect(() => { 
+    cartDispatch({type: 'PRODUCT_DETAIL_VIEW', payload: productDetail});
+  }, [loading]);
   return (
-    <Layout title={itemInBasket.name} description={itemInBasket.description} id={id}>
+    <>
+    {loading && !product && <CircularProgress></CircularProgress>}
+    {!loading && product && (<Layout title={product.name} description={product.description}>
     <div className={classes.section}>
       <NextLink href="/" passHref>
         <Link>
@@ -40,21 +44,33 @@ export const ProductDetails = (itemInBasket: ItemInBasket) => {
     <Grid container spacing={1}>
       <Grid item md={6} xs={12}>
         <Image
-          src={imageUrl}
-          alt={name}
+          src={product.imageUrl}
+          alt={product.name}
           width={640}
           height={640}
           layout="responsive"
+          className="roundImage"
         ></Image>
       </Grid>
       <Grid item md={3} xs={12}>
         <List>
           <ListItem>
             <Typography component="h1" variant="h1">
-              {itemInBasket.name}
+              {product.name}
             </Typography>
           </ListItem>
-        
+          <ListItem>
+              <Typography>Category: {product.productCategory.name}</Typography>
+            </ListItem>
+            <ListItem>
+              <Rating value={product.rating} readOnly></Rating>
+              <Link href="#reviews">
+                <Typography>({product.numReviews} reviews)</Typography>
+              </Link>
+            </ListItem>
+            <ListItem>
+              <Typography> Description: {product.description}</Typography>
+            </ListItem>
         </List>
       </Grid>
       <Grid item md={3} xs={12}>
@@ -66,18 +82,20 @@ export const ProductDetails = (itemInBasket: ItemInBasket) => {
                   <Typography>Price</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography>₹ {price}</Typography>
+                  <Typography>₹ {product.price}</Typography>
                 </Grid>
               </Grid>
             </ListItem>
             <ListItem>
               <Grid container>
-                <Grid item xs={6}>
-                  <Typography>Status</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  
-                </Grid>
+              <Grid item xs={6}>
+                    <Typography>Status</Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography>
+                      {product.countInStock > 0 ? 'In stock' : 'Unavailable'}
+                    </Typography>
+                  </Grid>
               </Grid>
             </ListItem>
             <ListItem>
@@ -94,6 +112,8 @@ export const ProductDetails = (itemInBasket: ItemInBasket) => {
         </Card>
       </Grid>
     </Grid>
-  </Layout>
+    <ProductReview/>
+  </Layout>)}
+  </>
   );
 };
